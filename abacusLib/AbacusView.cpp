@@ -10,6 +10,8 @@
 
 #include "pch.h"
 
+#include <wx/dcbuffer.h>
+
 #include "AbacusView.h"
 
 /**
@@ -19,5 +21,23 @@
 void AbacusView::Initialize(wxFrame *parent)
 {
     Create(parent, wxID_ANY);
-    SetBackgroundColour(*wxWHITE);
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+
+    Bind(wxEVT_PAINT, &AbacusView::OnPaint, this);
+}
+
+
+/**
+ * Paint event, draws the window
+ * @param event Paint event object
+ */
+void AbacusView::OnPaint(wxPaintEvent& event)
+{
+    wxAutoBufferedPaintDC dc(this);
+
+    wxBrush background(*wxLIGHT_GREY_BRUSH);
+    dc.SetBackground(background);
+    dc.Clear();
+
+    mAbacus.OnDraw(&dc);
 }

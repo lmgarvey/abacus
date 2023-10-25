@@ -20,7 +20,7 @@
 void MainFrame::Initialize()
 {
     Create(nullptr, wxID_ANY, L"abacus",
-           wxDefaultPosition, wxSize( 1000,800 ));
+           wxDefaultPosition, wxSize( 1250,800 ));
 
     // create a sizer to lay  out child windows vertically above each other
     auto sizer = new wxBoxSizer( wxVERTICAL );
