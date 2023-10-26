@@ -24,6 +24,9 @@ void AbacusView::Initialize(wxFrame *parent)
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 
     Bind(wxEVT_PAINT, &AbacusView::OnPaint, this);
+    Bind(wxEVT_LEFT_DOWN, &AbacusView::OnLeftDown, this);
+    Bind(wxEVT_LEFT_UP, &AbacusView::OnLeftUp, this);
+    Bind(wxEVT_MOTION, &AbacusView::OnMouseMove, this);
 }
 
 
@@ -40,4 +43,31 @@ void AbacusView::OnPaint(wxPaintEvent& event)
     dc.Clear();
 
     mAbacus.OnDraw(&dc);
+}
+
+/**
+ * Handle the left mouse button down event
+ * @param event
+ */
+void AbacusView::OnLeftDown(wxMouseEvent &event)
+{
+    auto bead = mAbacus.HitTest(event.GetX(), event.GetY());
+}
+
+/**
+ * Handle the left mouse button up event
+ * @param event
+ */
+void AbacusView::OnLeftUp(wxMouseEvent &event)
+{
+
+}
+
+/**
+ * Handle the mouse move event
+ * @param event
+ */
+void AbacusView::OnMouseMove(wxMouseEvent &event)
+{
+
 }

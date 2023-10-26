@@ -26,6 +26,10 @@ private:
 public:
     void Initialize(wxFrame* parent);
 
+    void OnLeftDown(wxMouseEvent &event);
+    void OnLeftUp(wxMouseEvent &event);
+    void OnMouseMove(wxMouseEvent &event);
+
 };
 
 

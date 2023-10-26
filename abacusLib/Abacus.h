@@ -11,14 +11,25 @@
 #ifndef ABACUS_ABACUS_H
 #define ABACUS_ABACUS_H
 
+#include "Bead.h"
+
 /**
  * Our main aquarium class
  */
 class Abacus {
 private:
+    std::vector<std::shared_ptr<Bead>> mBeads;          ///< ALL beads
+    std::vector<std::shared_ptr<Bead>> mEarthBeads;     ///< earth beads only
+    std::vector<std::shared_ptr<Bead>> mHeavenlyBeads;  ///< heavenly beads only
+
+    void SetUpBeads();
 
 public:
+    Abacus();
+
     void OnDraw(wxDC *dc);
+
+    std::shared_ptr<Bead> HitTest(int x, int y);
 
 };
 

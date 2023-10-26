@@ -5,7 +5,11 @@ set(SOURCE_FILES
         MainFrame.cpp MainFrame.h
         AbacusView.cpp AbacusView.h
         Abacus.cpp Abacus.h
-        Bead.cpp Bead.h)
+        Bead.cpp Bead.h
+        EarthBead.cpp
+        EarthBead.h
+        HeavenlyBead.cpp
+        HeavenlyBead.h)
 
 set(wxBUILD_PRECOMP OFF)
 find_package(wxWidgets COMPONENTS core base xrc html xml REQUIRED)

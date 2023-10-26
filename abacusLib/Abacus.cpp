@@ -11,9 +11,55 @@
 #include "pch.h"
 
 #include "Abacus.h"
+#include "EarthBead.h"
+#include "HeavenlyBead.h"
 
 /**
- * Draw the abacus
+ * Constructor
+ */
+Abacus::Abacus()
+{
+    SetUpBeads();
+}
+
+/**
+ * Sets up the initial beads and gets them into mBeads
+ */
+void Abacus::SetUpBeads()
+{
+    // for determining where to place the beads
+    const std::vector<int> x_values = {875, 775, 675};
+    const std::vector<int> y_values = {450, 400, 350, 300};
+
+    // earth beads
+    for (int i = 0; i < 3; i++)
+    {
+        int x = x_values.at(i);
+        for (int j = 0; j < 4; j++)
+        {
+            std::shared_ptr<Bead> bead = std::make_shared<EarthBead>(this);
+            int y = y_values.at(j);
+            bead->SetLocation(x, y);
+            mEarthBeads.push_back(bead);
+            mBeads.push_back(bead);
+        }
+    }
+
+    // heavenly beads
+    for (int i = 0; i < 3; i++)
+    {
+        int x = x_values.at(i);
+        int y = 100;
+        std::shared_ptr<Bead> bead = std::make_shared<HeavenlyBead>(this);
+        bead->SetLocation(x, y);
+        mHeavenlyBeads.push_back(bead);
+        mBeads.push_back(bead);
+    }
+}
+
+/**
+ * Draw the abacus frame and column lines
+ * calls OnDraw function for each bead in mBeads
  * @param dc The device context to draw on
  */
 void Abacus::OnDraw(wxDC *dc)
@@ -45,28 +91,28 @@ void Abacus::OnDraw(wxDC *dc)
     dc->SetTextForeground(wxColour(0, 0, 0));
     dc->DrawText(L"integer value: ", 100, 600);
 
-    // beads, TK will likely move once interactive
-    wxBrush whiteBrush(*wxWHITE_BRUSH);
-    dc->SetBrush(whiteBrush);
+    for (const auto& bead : mBeads)
+    {
+        bead->Draw(dc);
+    }
 
-    // 1s column
-    dc->DrawEllipse(875, 450, 60, 50);
-    dc->DrawEllipse(875, 400, 60, 50);
-    dc->DrawEllipse(875, 350, 60, 50);
-    dc->DrawEllipse(875, 300, 60, 50);
-    dc->DrawEllipse(875, 100, 60, 50);   // heavenly bead
+}
 
-    // 10s column
-    dc->DrawEllipse(775, 450, 60, 50);
-    dc->DrawEllipse(775, 400, 60, 50);
-    dc->DrawEllipse(775, 350, 60, 50);
-    dc->DrawEllipse(775, 300, 60, 50);
-    dc->DrawEllipse(775, 100, 60, 50);   // heavenly bead
+/**
+ * Test an x,y click location to see if we clicked a bead
+ * @param x X location in pixels
+ * @param y Y location in pixels
+ * @return Pointer to bead we clicked, else nullptr
+ */
+std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
+{
+    for (const auto& bead : mBeads)
+    {
+        if (bead->HitTest(x, y))
+        {
+            return bead;
+        }
+    }
 
-    // 100s column
-    dc->DrawEllipse(675, 450, 60, 50);
-    dc->DrawEllipse(675, 400, 60, 50);
-    dc->DrawEllipse(675, 350, 60, 50);
-    dc->DrawEllipse(675, 300, 60, 50);
-    dc->DrawEllipse(675, 100, 60, 50);   // heavenly bead
+    return nullptr;
 }

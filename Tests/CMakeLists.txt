@@ -2,9 +2,10 @@ project(Tests)
 
 set(TEST_FILES
     gtest_main.cpp
-    EmptyTest.cpp
     AbacusTest.cpp
-        BeadTest.cpp
+    BeadTest.cpp
+        EarthBeadTest.cpp
+        HeavenlyBeadTest.cpp
 )
 
 # Get Google Tests
