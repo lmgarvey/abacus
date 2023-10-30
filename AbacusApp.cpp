@@ -1,5 +1,5 @@
 /**
- * @file AbacusApp.h
+ * @file AbacusApp.cpp
  * @author L.M. Garvey
  *
  * Main application class file for AbacusApp

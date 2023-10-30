@@ -30,6 +30,8 @@ void Abacus::SetUpBeads()
     // for determining where to place the beads
     const std::vector<int> x_values = {875, 775, 675};
     const std::vector<int> y_values = {450, 400, 350, 300};
+    const std::vector<int> upper_y =  {};    // upper limit on y for bead
+    const std::vector<int> lower_y =  {};    // lower limit on y for bead
 
     // earth beads
     for (int i = 0; i < 3; i++)

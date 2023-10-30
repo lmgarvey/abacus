@@ -1,5 +1,5 @@
 /**
- * @file EarthBead.cpp
+ * @file EarthBead.h
  * @author L.M. Garvey
  *
  * Class for earth beads (lower 4)

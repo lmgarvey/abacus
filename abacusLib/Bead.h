@@ -25,12 +25,19 @@ private:
     Abacus *mAbacus;
 
     // bead's location on the abacus
-    int mX = 0;      ///< x location for center of bead
-    int mY = 0;      ///< y location for center of bead
+    int mX = 0;      ///< x location for top-left of bead
+    int mY = 0;      ///< y location for top-left of bead
+
+    // farthest bead can go vertically
+    int mUpperY = 0;    ///< bead can't go any higher on screen than this
+    int mLowerY = 0;    ///< bead can't go any lower on screen than this
 
     // bead's size
     const int mWidth = 60;      ///< width of every bead
     const int mHeight = 50;     ///< height of every bead
+
+    /// bead is toward heavenly bar (counted) if true
+    bool mActivated = false;
 
 public:
     virtual ~Bead();
@@ -47,15 +54,19 @@ public:
     // getters and setters
     [[nodiscard]] int GetX() const { return mX; }  ///< @return X location in pixels
     [[nodiscard]] int GetY() const { return mY; }  ///< @return Y location in pixels
+    [[nodiscard]] int GetUpperY() const { return mUpperY; }     ///< @return highest position bead can go
+    [[nodiscard]] int GetLowerY() const { return mLowerY; }     ///< @return lowest position bead can go
     [[nodiscard]] int GetWidth() const { return mWidth; }       ///< @return bead's width
     [[nodiscard]] int GetHeight() const { return mHeight; }     ///< @ return bead's height
+    [[nodiscard]] bool GetActivated() const { return mActivated; }  ///<@return whether beat is activated
+    void FlipActivated() { mActivated = !mActivated; }  ///< flip whether this bead is activated
 
     /// set item location at @param x, @param y location
     void SetLocation(int x, int y) { mX = x; mY = y; }
 
     void Draw(wxDC *dc);
 
-    bool HitTest(int x, int y);
+    [[nodiscard]] bool HitTest(int x, int y) const;
 
 };
 

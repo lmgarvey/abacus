@@ -51,7 +51,7 @@ void AbacusView::OnPaint(wxPaintEvent& event)
  */
 void AbacusView::OnLeftDown(wxMouseEvent &event)
 {
-    auto bead = mAbacus.HitTest(event.GetX(), event.GetY());
+    mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
 }
 
 /**
@@ -60,7 +60,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
-
+    OnMouseMove(event);
 }
 
 /**
@@ -69,5 +69,24 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
  */
 void AbacusView::OnMouseMove(wxMouseEvent &event)
 {
+    // are we holding a bead?
+    if (mGrabbedBead != nullptr) {
+        // are we still clicking?
+        if (event.LeftIsDown()) {
+            // beads stay on their column, only move vertically
+            int x = mGrabbedBead->GetX();
 
+            // beads can only move up to the heavenly bar, and back
+            // to the frame or the next adjacent bead
+
+            mGrabbedBead->SetLocation(x, event.GetY());
+        }
+            // let go of mouse button -> let go of bead
+        else {
+            mGrabbedBead = nullptr;
+        }
+
+        // force screen to redraw
+        Refresh();
+    }
 }

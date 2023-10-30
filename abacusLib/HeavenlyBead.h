@@ -1,5 +1,5 @@
 /**
- * @file HeavenlyBead.cpp
+ * @file HeavenlyBead.h
  * @author L.M. Garvey
  *
  * Class for heavenly beads (topmost row)

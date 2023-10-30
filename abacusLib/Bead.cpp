@@ -47,19 +47,15 @@ void Bead::Draw(wxDC * dc)
  * @param y Y position to test
  * @return true if hit, else false
  */
-bool Bead::HitTest(int x, int y)
+bool Bead::HitTest(int x, int y) const
 {
     double radius_x = GetWidth() / 2.0;
     double radius_y = GetHeight() / 2.0;
 
-    double left = GetX();
-    double top = GetY();
-    double h = left + radius_x;
-    double k = top + radius_y;
+    double h = mX + radius_x;   // x-coord center of bead
+    double k = mY + radius_y;   // y-coord center of bead
 
-//    double h = GetX();   // x-coord center of ellipse
-//    double k = GetY();   // y-coord center of ellipse
-
+    // equation to check if point (x,y) is in the ellipse centered at (h,k)
     double x_test = pow((x-h), 2) / pow((radius_x), 2);
     double y_test = pow((y-k), 2) / pow((radius_y), 2);
 

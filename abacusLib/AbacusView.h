@@ -21,6 +21,9 @@ private:
     /// an object that describes our abacus
     Abacus mAbacus;
 
+    /// the bead we are currently dragging
+    std::shared_ptr<Bead> mGrabbedBead;
+
     void OnPaint(wxPaintEvent& event);
 
 public:
