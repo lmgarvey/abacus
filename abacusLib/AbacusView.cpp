@@ -51,6 +51,7 @@ void AbacusView::OnPaint(wxPaintEvent& event)
  */
 void AbacusView::OnLeftDown(wxMouseEvent &event)
 {
+    mClickedY = event.GetY();
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
 }
 
@@ -60,7 +61,34 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
-    OnMouseMove(event);
+    int eventY = event.GetY();
+    int deltaY = abs(eventY - mClickedY);
+
+    // clicking and dragging
+    if (deltaY > mDelta)
+    {
+        OnMouseMove(event);
+        return;
+    }
+
+    // single click
+    if (mGrabbedBead != nullptr)
+    {
+        int x = mGrabbedBead->GetX();
+        int y = mGrabbedBead->GetY();
+        if (y == mGrabbedBead->GetLowerY())
+        {
+            y = mGrabbedBead->GetUpperY();
+        }
+        else
+        {
+            y = mGrabbedBead->GetLowerY();
+        }
+        mGrabbedBead->SetLocation(x, y);
+        mGrabbedBead = nullptr;
+
+        Refresh();
+    }
 }
 
 /**
@@ -71,18 +99,31 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
 {
     // are we holding a bead?
     if (mGrabbedBead != nullptr) {
+        // beads stay on their column, only move vertically
+        int x = mGrabbedBead->GetX();
+
         // are we still clicking?
         if (event.LeftIsDown()) {
-            // beads stay on their column, only move vertically
-            int x = mGrabbedBead->GetX();
-
-            // beads can only move up to the heavenly bar, and back
-            // to the frame or the next adjacent bead
-
             mGrabbedBead->SetLocation(x, event.GetY());
         }
             // let go of mouse button -> let go of bead
         else {
+            // snap bead up or down
+            int upper_dst = abs(mGrabbedBead->GetUpperY() - event.GetY());
+            int lower_dst = abs(mGrabbedBead->GetLowerY() - event.GetY());
+
+            if (upper_dst < lower_dst)
+            {
+                // closer to up
+                mGrabbedBead->SetLocation(x, mGrabbedBead->GetUpperY());
+            }
+            else
+            {
+                // closer to down
+                mGrabbedBead->SetLocation(x, mGrabbedBead->GetLowerY());
+            }
+
+
             mGrabbedBead = nullptr;
         }
 

@@ -28,32 +28,51 @@ Abacus::Abacus()
 void Abacus::SetUpBeads()
 {
     // for determining where to place the beads
-    const std::vector<int> x_values = {875, 775, 675};
-    const std::vector<int> y_values = {450, 400, 350, 300};
-    const std::vector<int> upper_y =  {};    // upper limit on y for bead
-    const std::vector<int> lower_y =  {};    // lower limit on y for bead
+    const std::vector<int> x_values = {975, 875, 775, 675, 575, 475, 375, 275, 175, 75};
+    const std::vector<int> y_values = {300, 350, 400, 450};
 
     // earth beads
-    for (int i = 0; i < 3; i++)
+    int x_place = 0;
+    for (int x : x_values)
     {
-        int x = x_values.at(i);
-        for (int j = 0; j < 4; j++)
+        x_place++;
+
+        int bead_value = 1;
+        for (int y : y_values)
         {
             std::shared_ptr<Bead> bead = std::make_shared<EarthBead>(this);
-            int y = y_values.at(j);
             bead->SetLocation(x, y);
+
+            // 1's bead ranges from 300 (lower) to 220 (upper)
+            // so beads range from y (lower) to y - 80 (upper)
+            bead->SetUpperLower(y-80, y);
+            bead->SetValue(bead_value);
+
+            // 100s, 100.000s, ... place, tell bead it is a Location Bead
+            if (x_place % 3 == 0 && bead_value == 1)
+            {
+                bead->SetLocation();
+            }
+
+            bead_value++;
+
             mEarthBeads.push_back(bead);
             mBeads.push_back(bead);
         }
     }
 
     // heavenly beads
-    for (int i = 0; i < 3; i++)
+    for (int x : x_values)
     {
-        int x = x_values.at(i);
         int y = 100;
         std::shared_ptr<Bead> bead = std::make_shared<HeavenlyBead>(this);
         bead->SetLocation(x, y);
+
+        // heavenly bar at 220, so bead ranges from 100 (upper) to 220 (lower)
+        // drawing at 220 puts the top-left in line with the bar, move back up [height]
+        bead->SetUpperLower(100, y + 120 - bead->GetHeight());
+        bead->SetValue(5);
+
         mHeavenlyBeads.push_back(bead);
         mBeads.push_back(bead);
     }
@@ -70,19 +89,21 @@ void Abacus::OnDraw(wxDC *dc)
     // draw the frame
     wxPen brownPen(wxColour(125, 77, 32), 10);
     dc->SetPen(brownPen);
-    dc->DrawLine(50, 100, 950, 100);     // top bar
-    dc->DrawLine(50, 500, 950, 500);     // bottom bar
+    dc->DrawLine(50, 100, 1050, 100);     // top bar
+    dc->DrawLine(50, 500, 1050, 500);     // bottom bar
 
     wxPen blackPen(wxColour(0, 0, 0), 7);
     dc->SetPen(blackPen);
-    dc->DrawLine(50, 220, 950, 220);     // heavenly bar
+    dc->DrawLine(50, 220, 1050, 220);     // heavenly bar
 
     // columns
     wxPen thinBlackPen(wxColour(0, 0, 0), 2);
     dc->SetPen(thinBlackPen);
-    dc->DrawLine(905, 100, 905, 500);    // 1s
-    dc->DrawLine(805, 100, 805, 500);    // 10s
-    dc->DrawLine(705, 100, 705, 500);    // 100s
+    const std::vector<int> x_positions = {1005, 905, 805, 705, 605, 505, 405, 305, 205, 105};
+    for (int x : x_positions)
+    {
+        dc->DrawLine(x, 100, x, 500);
+    }
 
     // LITE display
     wxFont font(wxSize(10, 22),

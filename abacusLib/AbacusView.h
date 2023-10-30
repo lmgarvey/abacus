@@ -21,6 +21,12 @@ private:
     /// an object that describes our abacus
     Abacus mAbacus;
 
+    /// how far we've moved the mouse for dragging vs clicking
+    int mDelta = 10;
+
+    /// original position from which to grab delta
+    int mClickedY;
+
     /// the bead we are currently dragging
     std::shared_ptr<Bead> mGrabbedBead;
 

@@ -36,9 +36,32 @@ Bead::~Bead()
  */
 void Bead::Draw(wxDC * dc)
 {
-    wxBrush whiteBrush(*wxWHITE_BRUSH);
-    dc->SetBrush(whiteBrush);
-    dc->DrawEllipse(GetX(), GetY(), GetWidth(), GetHeight());
+    wxBrush beadBrush(*wxWHITE_BRUSH);
+    if (mLocationBead)
+    {
+        dc->SetBrush(*wxRED_BRUSH);
+    }
+    else
+    {
+        dc->SetBrush(*wxWHITE_BRUSH);
+    }
+
+    if (GetY() <= mUpperY)
+    {
+        // too high on the screen
+        mY = mUpperY;
+    }
+    else if (GetY() >= mLowerY)
+    {
+        // too low on the screen
+        mY = mLowerY;
+    }
+    else
+    {
+        // we're good!
+        mY = GetY();
+    }
+    dc->DrawEllipse(mX, mY, GetWidth(), GetHeight());
 }
 
 /**
