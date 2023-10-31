@@ -74,14 +74,12 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     if (mGrabbedBead != nullptr)
     {
         int x = mGrabbedBead->GetX();
-        int y = mGrabbedBead->GetY();
-        if (y == mGrabbedBead->GetLowerY())
+        int y = mGrabbedBead->GetTowardBar();   // assume we Are Activating, move Toward bar
+
+        // if it's at the bar already, move it away
+        if (mGrabbedBead->GetActivated())
         {
-            y = mGrabbedBead->GetUpperY();
-        }
-        else
-        {
-            y = mGrabbedBead->GetLowerY();
+            y = mGrabbedBead->GetFromBar();
         }
         mGrabbedBead->SetLocation(x, y);
 
@@ -118,29 +116,23 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
         // let go of mouse button -> let go of bead
         else {
             // snap bead up or down
-            int upper_dst = abs(mGrabbedBead->GetUpperY() - event.GetY());
-            int lower_dst = abs(mGrabbedBead->GetLowerY() - event.GetY());
+            int toward_dst = abs(mGrabbedBead->GetTowardBar() - event.GetY());
+            int from_dst = abs(mGrabbedBead->GetFromBar() - event.GetY());
 
-            if (upper_dst < lower_dst)
+            if (toward_dst < from_dst)
             {
-                // closer to up
-                mGrabbedBead->SetLocation(x, mGrabbedBead->GetUpperY());
+                // closer to bar, snap there
+                mGrabbedBead->SetLocation(x, mGrabbedBead->GetTowardBar());
                 mGrabbedBead->SetActivated(true);
             }
             else
             {
-                // closer to down
-                mGrabbedBead->SetLocation(x, mGrabbedBead->GetLowerY());
+                // farther from bar, snap away from it
+                mGrabbedBead->SetLocation(x, mGrabbedBead->GetFromBar());
                 mGrabbedBead->SetActivated(false);
             }
 
-            // the bead moved, update the LITE display (activation is already set from above)
-            int beadValue = mGrabbedBead->GetValue();
-            if (!mGrabbedBead->GetActivated())
-            {
-                beadValue *= -1;
-            }
-            mAbacus.UpdateLITEValue(beadValue);
+            UpdateLITEValue();
 
             mGrabbedBead = nullptr;
         }
@@ -151,9 +143,26 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
 }
 
 /**
- * A bead has moved, so the integer display value needs to be updated
+ * Determines if the LITE value has changed, and updates it on the abacus if so
  */
 void AbacusView::UpdateLITEValue()
 {
+    int original_toward_dst = abs(mClickedY - mGrabbedBead->GetTowardBar());
+    int original_from_dst = abs(mClickedY - mGrabbedBead->GetFromBar());
 
+    // if it was initially toward the bar
+    bool originally_activated = original_toward_dst < original_from_dst;
+
+    // if it's currently toward the bar
+    bool now_activated = mGrabbedBead->GetY() == mGrabbedBead->GetTowardBar();
+
+    // if it changed positions wrt the bar
+    if (originally_activated != now_activated)
+    {
+        int beadValue = mGrabbedBead->GetValue();
+        if (!mGrabbedBead->GetActivated()) {
+            beadValue *= -1;
+        }
+        mAbacus.UpdateLITEValue(beadValue);
+    }
 }

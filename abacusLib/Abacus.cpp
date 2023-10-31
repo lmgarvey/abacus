@@ -41,8 +41,8 @@ void Abacus::SetUpBeads()
             std::shared_ptr<Bead> bead = std::make_shared<EarthBead>(this);
             bead->SetLocation(x, y);
 
-            // 1's bead ranges from 300 (lower) to 220 (upper)
-            // so beads range from y (lower) to y - 80 (upper)
+            // (for earthly) higher on screen --> toward bar, lower on screen --> away from bar
+            bead->SetTowardFrom(y-80, y);
             bead->SetUpperLower(y-80, y);
 
             // value multiplied by 10, 100, 1000, ... depending on x column
@@ -71,9 +71,10 @@ void Abacus::SetUpBeads()
         std::shared_ptr<Bead> bead = std::make_shared<HeavenlyBead>(this);
         bead->SetLocation(x, y);
 
-        // heavenly bar at 220, so bead ranges from 100 (upper) to 220 (lower)
-        // drawing at 220 puts the top-left in line with the bar, move back up [height]
+        // (for heavenly) lower on screen --> toward bar, upper on screen --> away from bar
+        bead->SetTowardFrom(y + 120 - bead->GetHeight(), 100);
         bead->SetUpperLower(100, y + 120 - bead->GetHeight());
+
         bead->SetValue(5 * (int)pow(10, x_place));
         x_place++;
 

@@ -28,7 +28,11 @@ private:
     int mX = 0;      ///< x location for top-left of bead
     int mY = 0;      ///< y location for top-left of bead
 
-    // farthest bead can go vertically (mUpperY < mLowerY)
+    // farthest bead can go toward or away from the bar
+    int mTowardBar = 0;  ///< bead can't go any closer to the heavenly bar than this
+    int mFromBar = 0;    ///< bead can't go any farther from the heavenly bar than this
+
+    // farthest the bead can go on the screen in general (mUpperY < mLowerY)
     int mUpperY = 0;    ///< bead can't go any higher on screen than this
     int mLowerY = 0;    ///< bead can't go any lower on screen than this
 
@@ -60,10 +64,13 @@ public:
     // getters and setters
     [[nodiscard]] int GetX() const { return mX; }  ///< @return X location in pixels
     [[nodiscard]] int GetY() const { return mY; }  ///< @return Y location in pixels
-    [[nodiscard]] int GetUpperY() const { return mUpperY; }     ///< @return highest position bead can go
-    [[nodiscard]] int GetLowerY() const { return mLowerY; }     ///< @return lowest position bead can go
+    [[nodiscard]] int GetTowardBar() const { return mTowardBar; }     ///< @return closest bead can get to bar
+    [[nodiscard]] int GetFromBar() const { return mFromBar; }     ///< @return farthest bead can get from bar
 
-    /// Set @param upper and @param lower to be vertical limits for this bead
+    /// Set @param toward and @param from to be vertical limits for this bead wrt the heavenly bar
+    void SetTowardFrom(int toward, int from) { mTowardBar = toward; mFromBar = from; }
+
+    /// Set @param upper and @param lower to be absolute vertical limits, ignoring heavenly bar
     void SetUpperLower(int upper, int lower) { mUpperY = upper; mLowerY = lower; }
 
     [[nodiscard]] int GetWidth() const { return mWidth; }       ///< @return bead's width
