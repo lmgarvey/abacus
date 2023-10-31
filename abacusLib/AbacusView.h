@@ -30,6 +30,9 @@ private:
     /// the bead we are currently dragging
     std::shared_ptr<Bead> mGrabbedBead;
 
+    /// the integer value to display and update with the abacus HEAV value
+    int mLITEValue = 0;
+
     void OnPaint(wxPaintEvent& event);
 
 public:
@@ -38,6 +41,8 @@ public:
     void OnLeftDown(wxMouseEvent &event);
     void OnLeftUp(wxMouseEvent &event);
     void OnMouseMove(wxMouseEvent &event);
+
+    void UpdateLITEValue();
 
 };
 

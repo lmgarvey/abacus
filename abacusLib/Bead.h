@@ -24,7 +24,6 @@ private:
     /// the abacus this bead is contained in
     Abacus *mAbacus;
 
-protected:
     // bead's location on the abacus
     int mX = 0;      ///< x location for top-left of bead
     int mY = 0;      ///< y location for top-left of bead
@@ -44,7 +43,7 @@ protected:
     int mValue = 0;
 
     /// whether this bead should be painted red
-    bool mLocationBead = false;
+    bool mRedBead = false;
 
 public:
     virtual ~Bead();
@@ -70,15 +69,15 @@ public:
     [[nodiscard]] int GetWidth() const { return mWidth; }       ///< @return bead's width
     [[nodiscard]] int GetHeight() const { return mHeight; }     ///< @ return bead's height
     [[nodiscard]] bool GetActivated() const { return mActivated; }  ///<@return whether beat is activated
-    void FlipActivated() { mActivated = !mActivated; }  ///< flip whether this bead is activated
+    void SetActivated(bool activate) { mActivated = activate; }  ///< set bead's activation status to @param activate
 
     /// set item location at @param x, @param y location
     void SetLocation(int x, int y) { mX = x; mY = y; }
 
     void SetValue(int value) { mValue = value; }    ///< Set the value of this bead to @param value
-    int GetValue() const { return mValue; }         ///< @return the value of this bead
+    [[nodiscard]] int GetValue() const { return mValue; }         ///< @return the value of this bead
 
-    void SetLocation() { mLocationBead = true; }    ///< Tell this bead it is a location bead
+    void SetIsRed() { mRedBead = true; }    ///< Tell this bead it is a location bead
 
     void Draw(wxDC *dc);
 

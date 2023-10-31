@@ -61,8 +61,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
-    int eventY = event.GetY();
-    int deltaY = abs(eventY - mClickedY);
+    int deltaY = abs(event.GetY() - mClickedY);
 
     // clicking and dragging
     if (deltaY > mDelta)
@@ -71,7 +70,7 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
         return;
     }
 
-    // single click
+    // single click, flip to be up or down
     if (mGrabbedBead != nullptr)
     {
         int x = mGrabbedBead->GetX();
@@ -85,6 +84,16 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
             y = mGrabbedBead->GetLowerY();
         }
         mGrabbedBead->SetLocation(x, y);
+
+        // the bead moved, update the LITE display and flip activation
+        mGrabbedBead->SetActivated(!mGrabbedBead->GetActivated());
+        int beadValue = mGrabbedBead->GetValue();
+        if (!mGrabbedBead->GetActivated())
+        {
+            beadValue *= -1;
+        }
+        mAbacus.UpdateLITEValue(beadValue);
+
         mGrabbedBead = nullptr;
 
         Refresh();
@@ -100,13 +109,13 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
     // are we holding a bead?
     if (mGrabbedBead != nullptr) {
         // beads stay on their column, only move vertically
-        int x = mGrabbedBead->GetX();
+        const int x = mGrabbedBead->GetX();
 
         // are we still clicking?
         if (event.LeftIsDown()) {
             mGrabbedBead->SetLocation(x, event.GetY());
         }
-            // let go of mouse button -> let go of bead
+        // let go of mouse button -> let go of bead
         else {
             // snap bead up or down
             int upper_dst = abs(mGrabbedBead->GetUpperY() - event.GetY());
@@ -116,13 +125,22 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
             {
                 // closer to up
                 mGrabbedBead->SetLocation(x, mGrabbedBead->GetUpperY());
+                mGrabbedBead->SetActivated(true);
             }
             else
             {
                 // closer to down
                 mGrabbedBead->SetLocation(x, mGrabbedBead->GetLowerY());
+                mGrabbedBead->SetActivated(false);
             }
 
+            // the bead moved, update the LITE display (activation is already set from above)
+            int beadValue = mGrabbedBead->GetValue();
+            if (!mGrabbedBead->GetActivated())
+            {
+                beadValue *= -1;
+            }
+            mAbacus.UpdateLITEValue(beadValue);
 
             mGrabbedBead = nullptr;
         }
@@ -130,4 +148,12 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
         // force screen to redraw
         Refresh();
     }
+}
+
+/**
+ * A bead has moved, so the integer display value needs to be updated
+ */
+void AbacusView::UpdateLITEValue()
+{
+
 }

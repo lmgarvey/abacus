@@ -35,8 +35,6 @@ void Abacus::SetUpBeads()
     int x_place = 0;
     for (int x : x_values)
     {
-        x_place++;
-
         int bead_value = 1;
         for (int y : y_values)
         {
@@ -46,12 +44,14 @@ void Abacus::SetUpBeads()
             // 1's bead ranges from 300 (lower) to 220 (upper)
             // so beads range from y (lower) to y - 80 (upper)
             bead->SetUpperLower(y-80, y);
-            bead->SetValue(bead_value);
+
+            // value multiplied by 10, 100, 1000, ... depending on x column
+            bead->SetValue(bead_value  * (int)pow(10, x_place));
 
             // 100s, 100.000s, ... place, tell bead it is a Location Bead
             if (x_place % 3 == 0 && bead_value == 1)
             {
-                bead->SetLocation();
+                bead->SetIsRed();
             }
 
             bead_value++;
@@ -59,9 +59,12 @@ void Abacus::SetUpBeads()
             mEarthBeads.push_back(bead);
             mBeads.push_back(bead);
         }
+
+        x_place++;
     }
 
     // heavenly beads
+    x_place = 0;
     for (int x : x_values)
     {
         int y = 100;
@@ -71,7 +74,8 @@ void Abacus::SetUpBeads()
         // heavenly bar at 220, so bead ranges from 100 (upper) to 220 (lower)
         // drawing at 220 puts the top-left in line with the bar, move back up [height]
         bead->SetUpperLower(100, y + 120 - bead->GetHeight());
-        bead->SetValue(5);
+        bead->SetValue(5 * (int)pow(10, x_place));
+        x_place++;
 
         mHeavenlyBeads.push_back(bead);
         mBeads.push_back(bead);
@@ -113,6 +117,23 @@ void Abacus::OnDraw(wxDC *dc)
     dc->SetFont(font);
     dc->SetTextForeground(wxColour(0, 0, 0));
     dc->DrawText(L"integer value: ", 100, 600);
+
+    std::string original = std::to_string(mLITEValue);
+    std::string LITEvalue;
+
+    // put in spacers, 100 000 000 is easier to look at than 100000000
+    // ^^ spacer after i=2, i=5, up to pos 8
+    for (int i = 0; i != original.size(); i++)
+    {
+        LITEvalue += original.at(i);
+        if ((original.size() - 1 - i) % 3 == 0)
+        {
+            LITEvalue += " ";
+        }
+    }
+
+    std::string displayValue = "\t\t" + LITEvalue;
+    dc->DrawText(displayValue, 250, 600);
 
     for (const auto& bead : mBeads)
     {

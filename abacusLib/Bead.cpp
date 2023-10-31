@@ -37,7 +37,7 @@ Bead::~Bead()
 void Bead::Draw(wxDC * dc)
 {
     wxBrush beadBrush(*wxWHITE_BRUSH);
-    if (mLocationBead)
+    if (mRedBead)
     {
         dc->SetBrush(*wxRED_BRUSH);
     }
