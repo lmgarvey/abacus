@@ -4,8 +4,6 @@ set(TEST_FILES
     gtest_main.cpp
     AbacusTest.cpp
     BeadTest.cpp
-        EarthBeadTest.cpp
-        HeavenlyBeadTest.cpp
 )
 
 # Get Google Tests

@@ -47,7 +47,7 @@ void AbacusView::OnPaint(wxPaintEvent& event)
 
 /**
  * Handle the left mouse button down event
- * @param event
+ * @param event Event to handle
  */
 void AbacusView::OnLeftDown(wxMouseEvent &event)
 {
@@ -57,7 +57,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
 
 /**
  * Handle the left mouse button up event
- * @param event
+ * @param event Event to handle
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
@@ -73,34 +73,15 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     // single click, flip to be up or down
     if (mGrabbedBead != nullptr)
     {
-        int x = mGrabbedBead->GetX();
-        int y = mGrabbedBead->GetTowardBar();   // assume we Are Activating, move Toward bar
-
-        // if it's at the bar already, move it away
-        if (mGrabbedBead->GetActivated())
-        {
-            y = mGrabbedBead->GetFromBar();
-        }
-        mGrabbedBead->SetLocation(x, y);
-
-        // the bead moved, update the LITE display and flip activation
-        mGrabbedBead->SetActivated(!mGrabbedBead->GetActivated());
-        int beadValue = mGrabbedBead->GetValue();
-        if (!mGrabbedBead->GetActivated())
-        {
-            beadValue *= -1;
-        }
-        mAbacus.UpdateLITEValue(beadValue);
-
+        UpdateLITEValueClicked();
         mGrabbedBead = nullptr;
-
         Refresh();
     }
 }
 
 /**
  * Handle the mouse move event
- * @param event
+ * @param event Event to handle
  */
 void AbacusView::OnMouseMove(wxMouseEvent &event)
 {
@@ -109,7 +90,7 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
         // beads stay on their column, only move vertically
         const int x = mGrabbedBead->GetX();
 
-        // are we still clicking?
+        // are we still clicking? if so, keep moving this bead and its neighbors
         if (event.LeftIsDown()) {
             mGrabbedBead->SetLocation(x, event.GetY());
         }
@@ -132,7 +113,7 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
                 mGrabbedBead->SetActivated(false);
             }
 
-            UpdateLITEValue();
+            UpdateLITEValueDragged();
 
             mGrabbedBead = nullptr;
         }
@@ -143,9 +124,39 @@ void AbacusView::OnMouseMove(wxMouseEvent &event)
 }
 
 /**
- * Determines if the LITE value has changed, and updates it on the abacus if so
+ * Clicking a bead flips its position, update on the abacus
  */
-void AbacusView::UpdateLITEValue()
+void AbacusView::UpdateLITEValueClicked()
+{
+    int y = mGrabbedBead->GetTowardBar();   // assume we Are Activating and moving Toward bar
+
+    // if it's at the bar already, move it away
+    if (mGrabbedBead->GetActivated())
+    {
+        y = mGrabbedBead->GetFromBar();
+    }
+
+    mGrabbedBead->SetLocation(mGrabbedBead->GetX(), y);
+    mGrabbedBead->SetActivated(!mGrabbedBead->GetActivated());
+
+    int beadValue;
+    if (mGrabbedBead->GetActivated())
+    {
+        beadValue = HandleActivation();
+    }
+    else
+    {
+        beadValue = HandleDeactivation();
+    }
+
+    mAbacus.UpdateLITEValue(beadValue);
+}
+
+/**
+ * Determines if the LITE value has changed, update on the abacus if so
+ * Get here after left mouse up, so all beads are either at 'toward' or 'from'
+ */
+void AbacusView::UpdateLITEValueDragged()
 {
     int original_toward_dst = abs(mClickedY - mGrabbedBead->GetTowardBar());
     int original_from_dst = abs(mClickedY - mGrabbedBead->GetFromBar());
@@ -159,10 +170,57 @@ void AbacusView::UpdateLITEValue()
     // if it changed positions wrt the bar
     if (originally_activated != now_activated)
     {
-        int beadValue = mGrabbedBead->GetValue();
-        if (!mGrabbedBead->GetActivated()) {
-            beadValue *= -1;
+        int beadValue;
+        if (now_activated)
+        {
+            beadValue = HandleActivation();
         }
+        else
+        {
+            beadValue = HandleDeactivation();
+        }
+
         mAbacus.UpdateLITEValue(beadValue);
     }
+}
+
+/**
+ * Handle the case of an earth bead being activated, also moves beads above it
+ * @return the final LITE value
+ */
+int AbacusView::HandleActivation()
+{
+    int LITE = mGrabbedBead->GetValue();
+    // moving toward the bar, move all beads above us
+    for (const auto& neighbor : mGrabbedBead->GetTowardNeighbors())
+    {
+        // only move, activate, and add if they weren't already activated
+        if (!neighbor->GetActivated())
+        {
+            neighbor->SetLocation(neighbor->GetX(), neighbor->GetTowardBar());
+            neighbor->SetActivated(true);
+            LITE += neighbor->GetValue();
+        }
+    }
+    return LITE;
+}
+
+/**
+ * Handle the case of an earth bead being deactivated, also moves beads below it
+ * @return the final LITEvalue
+ */
+int AbacusView::HandleDeactivation()
+{
+    int LITE = mGrabbedBead->GetValue() * -1;
+    for (const auto& neighbor : mGrabbedBead->GetFromNeighbors())
+    {
+        // only move, deactivate, and subtract if they were activated (they are Being deactivated)
+        if (neighbor->GetActivated())
+        {
+            neighbor->SetLocation(neighbor->GetX(), neighbor->GetFromBar());
+            neighbor->SetActivated(false);
+            LITE -= neighbor->GetValue();
+        }
+    }
+    return LITE;
 }

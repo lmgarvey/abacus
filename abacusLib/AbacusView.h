@@ -27,6 +27,9 @@ private:
     /// original position from which to grab delta
     int mClickedY;
 
+    /// previous mouse position, for tracking if we're moving a bead toward or away from bar
+    int mPreviousMouseY;
+
     /// the bead we are currently dragging
     std::shared_ptr<Bead> mGrabbedBead;
 
@@ -39,7 +42,13 @@ public:
     void OnLeftUp(wxMouseEvent &event);
     void OnMouseMove(wxMouseEvent &event);
 
-    void UpdateLITEValue();
+    void UpdateLITEValueDragged();
+    void UpdateLITEValueClicked();
+
+    int HandleActivation();
+    int HandleDeactivation();
+
+
 
 };
 

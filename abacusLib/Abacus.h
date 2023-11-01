@@ -19,8 +19,6 @@
 class Abacus {
 private:
     std::vector<std::shared_ptr<Bead>> mBeads;          ///< ALL beads
-    std::vector<std::shared_ptr<Bead>> mEarthBeads;     ///< earth beads only
-    std::vector<std::shared_ptr<Bead>> mHeavenlyBeads;  ///< heavenly beads only
 
     /// the integer value to display for the abacus
     int mLITEValue = 0;
@@ -34,6 +32,7 @@ public:
 
     std::shared_ptr<Bead> HitTest(int x, int y);
 
+    /// Increments the LITE value by @param value
     void UpdateLITEValue(int value) { mLITEValue += value; }    /// update the LITE value with @param value
 
 };

@@ -12,8 +12,6 @@
 #include "gtest/gtest.h"
 #include <Bead.h>
 #include <Abacus.h>
-#include <EarthBead.h>
-#include <HeavenlyBead.h>
 
 /// Mock class for testing the class bead
 class BeadMock : public Bead

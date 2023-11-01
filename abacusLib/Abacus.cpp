@@ -11,8 +11,6 @@
 #include "pch.h"
 
 #include "Abacus.h"
-#include "EarthBead.h"
-#include "HeavenlyBead.h"
 
 /**
  * Constructor
@@ -33,12 +31,13 @@ void Abacus::SetUpBeads()
 
     // earth beads
     int x_place = 0;
+    int max_j = 4;
     for (int x : x_values)
     {
         int bead_value = 1;
         for (int y : y_values)
         {
-            std::shared_ptr<Bead> bead = std::make_shared<EarthBead>(this);
+            std::shared_ptr<Bead> bead = std::make_shared<Bead>(this);
             bead->SetLocation(x, y);
 
             // (for earthly) higher on screen --> toward bar, lower on screen --> away from bar
@@ -49,16 +48,35 @@ void Abacus::SetUpBeads()
             bead->SetValue(bead_value  * (int)pow(10, x_place));
 
             // 100s, 100.000s, ... place, tell bead it is a Location Bead
-            if (x_place % 3 == 0 && bead_value == 1)
+            if ((x == 175 || x == 475 || x == 775) && y == 300)
             {
                 bead->SetIsRed();
             }
 
-            bead_value++;
-
-            mEarthBeads.push_back(bead);
             mBeads.push_back(bead);
         }
+
+        // tell each bead about its neighbors
+        for (int i = 0; i < 4; i++)
+        {
+            int curr_index = i + 4 * x_place;
+            std::shared_ptr<Bead> curr_bead = mBeads.at(curr_index);
+
+            // beads below us
+            for (int j = curr_index + 1; j < max_j; j++)
+            {
+                std::shared_ptr<Bead> neighbor = mBeads.at(j);
+                curr_bead->AddFromNeighbor(neighbor);
+            }
+
+            // beads above us
+            for (int j = 4 * x_place; j < curr_index; j++)
+            {
+                std::shared_ptr<Bead> neighbor = mBeads.at(j);
+                curr_bead->AddTowardNeighbor(neighbor);
+            }
+        }
+        max_j += 4;
 
         x_place++;
     }
@@ -68,7 +86,7 @@ void Abacus::SetUpBeads()
     for (int x : x_values)
     {
         int y = 100;
-        std::shared_ptr<Bead> bead = std::make_shared<HeavenlyBead>(this);
+        std::shared_ptr<Bead> bead = std::make_shared<Bead>(this);
         bead->SetLocation(x, y);
 
         // (for heavenly) lower on screen --> toward bar, upper on screen --> away from bar
@@ -78,7 +96,6 @@ void Abacus::SetUpBeads()
         bead->SetValue(5 * (int)pow(10, x_place));
         x_place++;
 
-        mHeavenlyBeads.push_back(bead);
         mBeads.push_back(bead);
     }
 }

@@ -17,9 +17,6 @@ class Abacus;
  * Class for beads on the abacus
  */
 class Bead {
-protected:
-    explicit Bead(Abacus *abacus);
-
 private:
     /// the abacus this bead is contained in
     Abacus *mAbacus;
@@ -49,7 +46,18 @@ private:
     /// whether this bead should be painted red
     bool mRedBead = false;
 
+    /// whether this is a heavenly bead
+    bool mIsHeav = false;
+
+    /// beads between this one and the bar
+    std::vector<std::shared_ptr<Bead>> mTowardBarNeighbors;
+
+    /// beads below this one, away from the bar
+    std::vector<std::shared_ptr<Bead>> mFromBarNeighbors;
+
 public:
+    explicit Bead(Abacus *abacus);
+
     virtual ~Bead();
 
     /// default constructor (disabled)
@@ -74,17 +82,35 @@ public:
     void SetUpperLower(int upper, int lower) { mUpperY = upper; mLowerY = lower; }
 
     [[nodiscard]] int GetWidth() const { return mWidth; }       ///< @return bead's width
-    [[nodiscard]] int GetHeight() const { return mHeight; }     ///< @ return bead's height
+    [[nodiscard]] int GetHeight() const { return mHeight; }     ///< @return bead's height
     [[nodiscard]] bool GetActivated() const { return mActivated; }  ///<@return whether beat is activated
     void SetActivated(bool activate) { mActivated = activate; }  ///< set bead's activation status to @param activate
 
-    /// set item location at @param x, @param y location
+    /**
+     * Set location of bead
+     * @param x X location to set
+     * @param y Y location to set
+     */
     void SetLocation(int x, int y) { mX = x; mY = y; }
 
     void SetValue(int value) { mValue = value; }    ///< Set the value of this bead to @param value
     [[nodiscard]] int GetValue() const { return mValue; }         ///< @return the value of this bead
 
     void SetIsRed() { mRedBead = true; }    ///< Tell this bead it is a location bead
+
+    /**
+     * Tell this bead about another bead between it and the bar
+     * @param bead Bead we're telling it about
+     */
+    void AddTowardNeighbor(const std::shared_ptr<Bead>& bead) { mTowardBarNeighbors.push_back(bead); }
+    std::vector<std::shared_ptr<Bead>> GetTowardNeighbors() { return mTowardBarNeighbors; }     /// @return the neighbors between this bead and the bar
+
+    /**
+     * Tell this bead about another bead below it, away from the bar
+     * @param bead Bead we're telling it about
+     */
+    void AddFromNeighbor(const std::shared_ptr<Bead>& bead) { mFromBarNeighbors.push_back(bead); }
+    std::vector<std::shared_ptr<Bead>> GetFromNeighbors() { return mFromBarNeighbors; }     /// @return the neighbors between this bead and the bar
 
     void Draw(wxDC *dc);
 
