@@ -32,9 +32,10 @@ void Abacus::SetUpBeads()
     // earth beads
     int x_place = 0;
     int max_j = 4;
+    int col_pos = -1;
     for (int x : x_values)
     {
-        int bead_value = 1;
+        col_pos++;
         for (int y : y_values)
         {
             std::shared_ptr<Bead> bead = std::make_shared<Bead>(this);
@@ -44,8 +45,8 @@ void Abacus::SetUpBeads()
             bead->SetTowardFrom(y-80, y);
             bead->SetUpperLower(y-80, y);
 
-            // value multiplied by 10, 100, 1000, ... depending on x column
-            bead->SetValue(bead_value  * (int)pow(10, x_place));
+            // for pow(10, col_pos) in getting this bead's value
+            bead->SetColPos(col_pos);
 
             // 100s, 100.000s, ... place, tell bead it is a Location Bead
             if ((x == 175 || x == 475 || x == 775) && y == 300)
@@ -83,9 +84,11 @@ void Abacus::SetUpBeads()
 
     // heavenly beads
     x_place = 0;
+    col_pos = 0;
     for (int x : x_values)
     {
         int y = 100;
+
         std::shared_ptr<Bead> bead = std::make_shared<Bead>(this);
         bead->SetLocation(x, y);
 
@@ -93,7 +96,10 @@ void Abacus::SetUpBeads()
         bead->SetTowardFrom(y + 120 - bead->GetHeight(), 100);
         bead->SetUpperLower(100, y + 120 - bead->GetHeight());
 
-        bead->SetValue(5 * (int)pow(10, x_place));
+        bead->SetBaseValue(50);
+        bead->SetColPos(col_pos);
+
+        col_pos++;
         x_place++;
 
         mBeads.push_back(bead);
@@ -107,7 +113,6 @@ void Abacus::SetUpBeads()
  */
 void Abacus::OnDraw(wxDC *dc)
 {
-
     // draw the frame
     wxPen brownPen(wxColour(125, 77, 32), 10);
     dc->SetPen(brownPen);

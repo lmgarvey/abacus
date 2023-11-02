@@ -40,14 +40,14 @@ private:
     /// bead is toward heavenly bar (counted) if true
     bool mActivated = false;
 
-    /// how much this bead counts for
-    int mValue = 0;
+    /// this bead's base value (for pow(base, mColPos))
+    int mBaseValue = 10;
+
+    /// this bead's position wrt columns (for base(value, mColPos))
+    int mColPos = 0;
 
     /// whether this bead should be painted red
     bool mRedBead = false;
-
-    /// whether this is a heavenly bead
-    bool mIsHeav = false;
 
     /// beads between this one and the bar
     std::vector<std::shared_ptr<Bead>> mTowardBarNeighbors;
@@ -93,8 +93,11 @@ public:
      */
     void SetLocation(int x, int y) { mX = x; mY = y; }
 
-    void SetValue(int value) { mValue = value; }    ///< Set the value of this bead to @param value
-    [[nodiscard]] int GetValue() const { return mValue; }         ///< @return the value of this bead
+    [[nodiscard]] int GetBaseValue() const { return mBaseValue; }    ///< @return the base value of this bead
+    void SetBaseValue(int value) { mBaseValue = value; }    ///< Set the base value of this bead to @param value
+
+    [[nodiscard]] int GetColPos() const { return mColPos; }         ///< @return the column pos of this bead
+    void SetColPos(int pos) { mColPos = pos; }    ///< Set the column pos of this bead to @param pos
 
     void SetIsRed() { mRedBead = true; }    ///< Tell this bead it is a location bead
 
