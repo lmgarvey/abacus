@@ -5,7 +5,7 @@
  * Our main aquarium class
  *
  * created october 2023
- * updated october 2023
+ * updated november 2023
  */
 
 #include "pch.h"
@@ -54,26 +54,26 @@ void Abacus::SetUpBeads()
                 bead->SetIsRed();
             }
 
-            mBeads.push_back(bead);
+            mEarthBeads.push_back(bead);
         }
 
         // tell each bead about its neighbors
         for (int i = 0; i < 4; i++)
         {
             int curr_index = i + 4 * x_place;
-            std::shared_ptr<Bead> curr_bead = mBeads.at(curr_index);
+            std::shared_ptr<Bead> curr_bead = mEarthBeads.at(curr_index);
 
             // beads below us
             for (int j = curr_index + 1; j < max_j; j++)
             {
-                std::shared_ptr<Bead> neighbor = mBeads.at(j);
+                std::shared_ptr<Bead> neighbor = mEarthBeads.at(j);
                 curr_bead->AddFromNeighbor(neighbor);
             }
 
             // beads above us
             for (int j = 4 * x_place; j < curr_index; j++)
             {
-                std::shared_ptr<Bead> neighbor = mBeads.at(j);
+                std::shared_ptr<Bead> neighbor = mEarthBeads.at(j);
                 curr_bead->AddTowardNeighbor(neighbor);
             }
         }
@@ -96,22 +96,22 @@ void Abacus::SetUpBeads()
         bead->SetTowardFrom(y + 120 - bead->GetHeight(), 100);
         bead->SetUpperLower(100, y + 120 - bead->GetHeight());
 
-        bead->SetBaseValue(50);
+        bead->SetBaseValue(5);
         bead->SetColPos(col_pos);
 
         col_pos++;
         x_place++;
 
-        mBeads.push_back(bead);
+        mHeavenlyBeads.push_back(bead);
     }
 }
 
 /**
- * Draw the abacus frame and column lines
- * calls OnDraw function for each bead in mBeads
- * @param dc The device context to draw on
+ * Draws the unchanging parts of the abacus:
+ *      frame, column lines, the "integer" part of the LITE display
+ * @param dc the device context to draw on
  */
-void Abacus::OnDraw(wxDC *dc)
+void Abacus::OnDrawFrame(wxDC *dc)
 {
     // draw the frame
     wxPen brownPen(wxColour(125, 77, 32), 10);
@@ -139,26 +139,65 @@ void Abacus::OnDraw(wxDC *dc)
                 wxFONTWEIGHT_NORMAL);
     dc->SetFont(font);
     dc->SetTextForeground(wxColour(0, 0, 0));
-    dc->DrawText(L"integer value: ", 100, 600);
+    dc->DrawText(L"integer value: \t\t", 100, 600);
+}
 
-    std::string original = std::to_string(mLITEValue);
-    std::string LITEvalue;
+/**
+ * Draw the abacus and its beads
+ * calls OnDrawFrame for the frame and columns, which don't change
+ * calls OnDraw function for each bead in mEarthBeads and mHeavenlyBeads
+ * @param dc The device context to draw on
+ */
+void Abacus::OnDraw(wxDC *dc)
+{
+    OnDrawFrame(dc);
+
+    // building the string backwards, from 1's place to 100..'s place
+    std::string original;
+    int column_total = 0;
+    int j = 0;
+    for (int i = 0; i < mEarthBeads.size(); i++)
+    {
+        const auto bead = mEarthBeads.at(i);
+        if (bead->GetActivated())
+        {
+            column_total += bead->GetBaseValue();
+        }
+
+        // starting a new column
+        if ((i+1) % 4 == 0 && i != 0)
+        {
+            auto heavBead = mHeavenlyBeads.at(j);
+            if (heavBead->GetActivated())
+            {
+                column_total += heavBead->GetBaseValue();
+            }
+            original += std::to_string(column_total);
+            column_total = 0;
+            j++;
+        }
+    }
+    std::reverse(original.begin(), original.end());
 
     // put in spacers, 100 000 000 is easier to look at than 100000000
     // ^^ spacer after i=2, i=5, up to pos 8
-    for (int i = 0; i != original.size(); i++)
+    std::string displayValue;
+    for (int i = 0; i < original.size(); i++)
     {
-        LITEvalue += original.at(i);
+        displayValue += original.at(i);
         if ((original.size() - 1 - i) % 3 == 0)
         {
-            LITEvalue += " ";
+            displayValue += " ";
         }
     }
 
-    std::string displayValue = "\t\t" + LITEvalue;
     dc->DrawText(displayValue, 250, 600);
 
-    for (const auto& bead : mBeads)
+    for (const auto& bead : mEarthBeads)
+    {
+        bead->Draw(dc);
+    }
+    for (const auto& bead : mHeavenlyBeads)
     {
         bead->Draw(dc);
     }
@@ -173,7 +212,14 @@ void Abacus::OnDraw(wxDC *dc)
  */
 std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 {
-    for (const auto& bead : mBeads)
+    for (const auto& bead : mEarthBeads)
+    {
+        if (bead->HitTest(x, y))
+        {
+            return bead;
+        }
+    }
+    for (const auto& bead : mHeavenlyBeads)
     {
         if (bead->HitTest(x, y))
         {

@@ -41,7 +41,7 @@ private:
     bool mActivated = false;
 
     /// this bead's base value (for pow(base, mColPos))
-    int mBaseValue = 10;
+    int mBaseValue = 1;
 
     /// this bead's position wrt columns (for base(value, mColPos))
     int mColPos = 0;
@@ -83,7 +83,7 @@ public:
 
     [[nodiscard]] int GetWidth() const { return mWidth; }       ///< @return bead's width
     [[nodiscard]] int GetHeight() const { return mHeight; }     ///< @return bead's height
-    [[nodiscard]] bool GetActivated() const { return mActivated; }  ///<@return whether beat is activated
+    [[nodiscard]] bool GetActivated() const { return mActivated; }  ///< @return whether beat is activated
     void SetActivated(bool activate) { mActivated = activate; }  ///< set bead's activation status to @param activate
 
     /**
@@ -119,6 +119,8 @@ public:
 
     [[nodiscard]] bool HitTest(int x, int y) const;
 
+
+    bool mWasAct = false;
 };
 
 

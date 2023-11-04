@@ -22,7 +22,7 @@ private:
     Abacus mAbacus;
 
     /// how far we've moved the mouse for dragging vs clicking
-    int mDelta = 10;
+    int mDelta = 5;
 
     /// original position from which to grab delta
     int mClickedY;
@@ -42,14 +42,9 @@ public:
     void OnLeftUp(wxMouseEvent &event);
     void OnMouseMove(wxMouseEvent &event);
 
-    void UpdateLITEValueDragged();
-    void UpdateLITEValueClicked();
-
-    int HandleActivation();
-    int HandleDeactivation();
-
-
-
+    void HandleSingleClick(wxMouseEvent &event);
+    void HandleDragging(wxMouseEvent &event);
+    void HandleReleasing(wxMouseEvent &event);
 };
 
 

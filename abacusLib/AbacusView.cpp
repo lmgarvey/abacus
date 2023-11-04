@@ -5,7 +5,7 @@
  * View class for the abacus
  *
  * created october 2023
- * updated october 2023
+ * updated november 2023
  */
 
 #include "pch.h"
@@ -74,10 +74,42 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     // single click, flip to be up or down
     if (mGrabbedBead != nullptr)
     {
-        UpdateLITEValueClicked();
-        mGrabbedBead = nullptr;
-        Refresh();
+        HandleSingleClick(event);
     }
+}
+
+/**
+ * Handles a single click on a bead
+ * Flips its position/activation, as well as for all relevant neighbors
+ * @param event Event to handle
+ */
+void AbacusView::HandleSingleClick(wxMouseEvent &event)
+{
+    bool wasActivated = mGrabbedBead->GetActivated();
+    // deactivating
+    if (wasActivated)
+    {
+        mGrabbedBead->SetActivated(false);
+        mGrabbedBead->SetLocation(mGrabbedBead->GetX(), mGrabbedBead->GetFromBar());
+        for (auto &neighbor : mGrabbedBead->GetFromNeighbors())
+        {
+            neighbor->SetLocation(neighbor->GetX(), neighbor->GetFromBar());
+            neighbor->SetActivated(false);
+        }
+    }
+    // activating
+    else
+    {
+        mGrabbedBead->SetActivated(true);
+        mGrabbedBead->SetLocation(mGrabbedBead->GetX(), mGrabbedBead->GetTowardBar());
+        for (auto &neighbor : mGrabbedBead->GetTowardNeighbors())
+        {
+            neighbor->SetLocation(neighbor->GetX(), neighbor->GetTowardBar());
+            neighbor->SetActivated(true);
+        }
+    }
+    mGrabbedBead = nullptr;
+    Refresh();
 }
 
 /**
@@ -87,187 +119,126 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
 void AbacusView::OnMouseMove(wxMouseEvent &event)
 {
     // are we holding a bead?
-    if (mGrabbedBead != nullptr) {
-        // beads stay on their column, only move vertically
-        const int x = mGrabbedBead->GetX();
-
-        // are we still clicking? if so, keep moving this bead and its neighbors
-        if (event.LeftIsDown()) {
-            mGrabbedBead->SetLocation(x, event.GetY());
-
-            // moving up on the screen
-            if (event.GetY() < mPreviousMouseY)
-            {
-                // move everyone above us that we are touching (they are currently deactivated)
-                int height_mul = (int)mGrabbedBead->GetTowardNeighbors().size();
-                for (auto & neighbor : mGrabbedBead->GetTowardNeighbors())
-                {
-                    if (!neighbor->GetActivated())
-                    {
-                        neighbor->SetLocation(x, event.GetY() - neighbor->GetHeight() * height_mul);
-                    }
-                    height_mul--;
-                }
-                // snap everyone below us to be deactivated
-                for (auto & neighbor : mGrabbedBead->GetFromNeighbors())
-                {
-                    neighbor->SetLocation(x, neighbor->GetFromBar());
-                    neighbor->SetActivated(false);
-                }
-            }
-            // moving down on the screen
-            else if (event.GetY() > mPreviousMouseY)
-            {
-                // move everyone below us that we are touching (they are currently activated)
-                int height_mul = 1;
-                for (auto & neighbor : mGrabbedBead->GetFromNeighbors())
-                {
-                    if (neighbor->GetActivated()) {
-                        neighbor->SetLocation(x, event.GetY() + neighbor->GetHeight() * height_mul);
-                        height_mul++;
-                    }
-                }
-
-                // snap everyone above us to be activated
-                for (auto & neighbor : mGrabbedBead->GetTowardNeighbors())
-                {
-                    neighbor->SetLocation(x, neighbor->GetTowardBar());
-                    neighbor->SetActivated(true);
-                }
-            }
-            mPreviousMouseY = event.GetY();
-        }   // of event.LeftIsDown()
-
-        // let go of mouse button -> let go of bead
-        else {
-            // snap bead up or down
-            int toward_dst = abs(mGrabbedBead->GetTowardBar() - event.GetY());
-            int from_dst = abs(mGrabbedBead->GetFromBar() - event.GetY());
-
-            if (toward_dst < from_dst)
-            {
-                // closer to bar, snap there
-                mGrabbedBead->SetLocation(x, mGrabbedBead->GetTowardBar());
-                mGrabbedBead->SetActivated(true);
-            }
-            else
-            {
-                // farther from bar, snap away from it
-                mGrabbedBead->SetLocation(x, mGrabbedBead->GetFromBar());
-                mGrabbedBead->SetActivated(false);
-            }
-            // TK snap its neighbors
-
-            UpdateLITEValueDragged();
-
+    if (mGrabbedBead != nullptr)
+    {
+        if (event.LeftIsDown())
+        {
+            HandleDragging(event);
+        }
+        else
+        {
+            HandleReleasing(event);
             mGrabbedBead = nullptr;
-        }   // of !event.LeftIsDown()
+        }
 
         // force screen to redraw
         Refresh();
     }
 }
 
+
 /**
- * Clicking a bead flips its position, update on the abacus
+ * Handles a bead being clicked and dragged (not release)
+ * @param event Event to handle
  */
-void AbacusView::UpdateLITEValueClicked()
+void AbacusView::HandleDragging(wxMouseEvent &event)
 {
-    int y = mGrabbedBead->GetTowardBar();   // assume we Are Activating and moving Toward bar
+    const int x = mGrabbedBead->GetX();
+    mGrabbedBead->SetLocation(x, event.GetY());
 
-    // if it's at the bar already, move it away
-    if (mGrabbedBead->GetActivated())
+    // moving up on the screen
+    if (event.GetY() < mPreviousMouseY)
     {
-        y = mGrabbedBead->GetFromBar();
+        // move everyone above us that we are touching (they are currently deactivated)
+        int height_mul = (int)mGrabbedBead->GetTowardNeighbors().size();
+        for (auto & neighbor : mGrabbedBead->GetTowardNeighbors())
+        {
+            if (!neighbor->GetActivated())
+            {
+                neighbor->SetLocation(x, event.GetY() - neighbor->GetHeight() * height_mul);
+                height_mul--;
+            }
+        }
+        // snap everyone below us to be deactivated
+        for (auto & neighbor : mGrabbedBead->GetFromNeighbors())
+        {
+            neighbor->SetLocation(x, neighbor->GetFromBar());
+            neighbor->SetActivated(false);
+        }
     }
-
-    mGrabbedBead->SetLocation(mGrabbedBead->GetX(), y);
-    mGrabbedBead->SetActivated(!mGrabbedBead->GetActivated());
-
-    int beadValue;
-    if (mGrabbedBead->GetActivated())
+    // moving down on the screen
+    else if (event.GetY() > mPreviousMouseY)
     {
-        beadValue = HandleActivation();
-    }
-    else
-    {
-        beadValue = HandleDeactivation();
-    }
+        // move everyone below us that we are touching (they are currently activated)
+        int height_mul = 1;
+        for (auto & neighbor : mGrabbedBead->GetFromNeighbors())
+        {
+            if (neighbor->GetActivated())
+            {
+                neighbor->SetLocation(x, event.GetY() + neighbor->GetHeight() * height_mul);
+                height_mul++;
+            }
+        }
 
-    mAbacus.UpdateLITEValue(beadValue);
+        // snap everyone above us to be activated
+        for (auto & neighbor : mGrabbedBead->GetTowardNeighbors())
+        {
+            neighbor->SetLocation(x, neighbor->GetTowardBar());
+            neighbor->SetActivated(true);
+        }
+    }
+    mPreviousMouseY = event.GetY();
 }
 
 /**
- * Determines if the LITE value has changed, update on the abacus if so
- * Get here after left mouse up, so all beads are either at 'toward' or 'from'
+ * Handles the mouse click releasing after dragging
+ * @param event Event to handle
  */
-void AbacusView::UpdateLITEValueDragged()
+void AbacusView::HandleReleasing(wxMouseEvent &event)
 {
-    int original_toward_dst = abs(mClickedY - mGrabbedBead->GetTowardBar());
-    int original_from_dst = abs(mClickedY - mGrabbedBead->GetFromBar());
+    const int x = mGrabbedBead->GetX();
 
-    // if it was initially toward the bar
-    bool originally_activated = original_toward_dst < original_from_dst;
+    // snap bead up or down
+    int toward_dst = abs(mGrabbedBead->GetTowardBar() - event.GetY());
+    int from_dst = abs(mGrabbedBead->GetFromBar() - event.GetY());
 
-    // if it's currently toward the bar
-    bool now_activated = mGrabbedBead->GetY() == mGrabbedBead->GetTowardBar();
-
-    // if it changed positions wrt the bar
-    if (originally_activated != now_activated)
+    if (toward_dst < from_dst)
     {
-        // TK this for long long
-        int beadValue;
-        if (now_activated)
-        {
-            beadValue = HandleActivation();
-        }
-        else
-        {
-            beadValue = HandleDeactivation();
-        }
-
-        mAbacus.UpdateLITEValue(beadValue);
-    }
-}
-
-/**
- * Handle the case of an earth bead being activated, also moves beads above it
- * @return the final LITE value
- */
-int AbacusView::HandleActivation()
-{
-    int LITE = (int)pow(mGrabbedBead->GetBaseValue(), mGrabbedBead->GetColPos());
-    // moving toward the bar, move all beads above us
-    for (const auto& neighbor : mGrabbedBead->GetTowardNeighbors())
-    {
-        // only move, activate, and add if they weren't already activated
-        if (!neighbor->GetActivated())
+        // closer to bar, snap there for us and those between us and it
+        mGrabbedBead->SetLocation(x, mGrabbedBead->GetTowardBar());
+        mGrabbedBead->SetActivated(true);
+        for (auto &neighbor : mGrabbedBead->GetTowardNeighbors())
         {
             neighbor->SetLocation(neighbor->GetX(), neighbor->GetTowardBar());
             neighbor->SetActivated(true);
-
-            LITE += (int)pow(neighbor->GetBaseValue(), neighbor->GetColPos());
+        }
+        // also if we were pushing any FromNeighbors, they need to go back up
+        for (auto &neighbor : mGrabbedBead->GetFromNeighbors())
+        {
+            if (neighbor->GetActivated())
+            {
+                neighbor->SetLocation(neighbor->GetX(), neighbor->GetTowardBar());
+            }
         }
     }
-    return LITE;
-}
 
-/**
- * Handle the case of an earth bead being deactivated, also moves beads below it
- * @return the final LITEvalue
- */
-int AbacusView::HandleDeactivation()
-{
-    int LITE = (int)pow(mGrabbedBead->GetBaseValue(), mGrabbedBead->GetColPos()) * -1;
-    for (const auto& neighbor : mGrabbedBead->GetFromNeighbors())
+    else
     {
-        // only move, deactivate, and subtract if they were activated (they are Being deactivated)
-        if (neighbor->GetActivated())
+        // farther from bar, snap away from it for us and all neighbors
+        mGrabbedBead->SetLocation(x, mGrabbedBead->GetFromBar());
+        mGrabbedBead->SetActivated(false);
+        for (auto &neighbor: mGrabbedBead->GetFromNeighbors())
         {
             neighbor->SetLocation(neighbor->GetX(), neighbor->GetFromBar());
             neighbor->SetActivated(false);
-            LITE -= (int)pow(neighbor->GetBaseValue(), neighbor->GetColPos());
+        }
+        // also if we were pushing any TowardNeighbors, they need to come back down
+        for (auto &neighbor: mGrabbedBead->GetTowardNeighbors())
+        {
+            if (!neighbor->GetActivated())
+            {
+                neighbor->SetLocation(neighbor->GetX(), neighbor->GetFromBar());
+            }
         }
     }
-    return LITE;
 }
