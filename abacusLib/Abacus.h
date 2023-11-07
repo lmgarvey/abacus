@@ -33,7 +33,8 @@ private:
     int mResetWidth = 50;   ///< width of reset button
     int mResetHeight = 30;  ///< height of reset button when not clicked
 
-    wxCheckBox* mCheckBox;  ///< checkbox for whether to draw the LITE display
+    wxCheckBox* mLITECheckBox;  ///< checkbox for whether to draw the LITE display
+    wxCheckBox* mGuideCheckBox; ///< checkbox for whether to draw the guide
 
 
 public:
@@ -41,10 +42,12 @@ public:
 
     void OnDraw(wxDC *dc);
     static void DrawFrame(wxDC *dc);
-    void DrawLITEDisplay(wxDC *dc);
+    void DrawLITEDisplay(wxDC *dc) const;
     void DrawResetButton(wxDC *dc) const;
+    static void DrawGuide(wxDC *dc);
 
     std::shared_ptr<Bead> HitTest(int x, int y);
+    bool NonBeadHitTest(int x, int y);
 
     // for the reset button
     [[nodiscard]] bool GetReset() const { return mReset; }    ///< @return whether the reset button is clicked
@@ -52,7 +55,10 @@ public:
     void ResetBeads();
 
     /// @param checkbox was constructed in the view, save it to the member variable
-    void AssignCheckBox(wxCheckBox *checkbox) { mCheckBox = checkbox; }
+    void AssignLITECheckBox(wxCheckBox *checkbox) { mLITECheckBox = checkbox; }
+
+    /// @param checkbox was constructed in the view, save it to the member variable
+    void AssignGuideCheckBox(wxCheckBox *checkbox) { mGuideCheckBox = checkbox; }
 
 };
 

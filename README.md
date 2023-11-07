@@ -34,6 +34,11 @@ Program for an interactable abacus
     - If checked, the LITE value display will appear as usual.
     - If unchecked, there will be no LITE value display, but the checkbox will remain.
     - The LITE value display persists when unseen. If the beads are moved when the LITE value display is hidden, and then the box is checked, the LITE value display will reappear with the correct number for the current state of the abacus.
+    - This box defaults to being checked.
+  - The checkbox beneath that can be clicked to select whether the optional guide is shown.
+    - If checked, numbers will appear along the right edge to demonstrate the positions for a 1, 2, 3, or 4x value. Numbers will appear along the bottom to denote the 1s, 10s, 100s, 100.000s, and 100.000.000s place.
+    - If unchecked, these numbers will disappear.
+    - This box defaults to being checked.
 - Bead behavior
   - Clicking a bead once will flip it from inactivated to activated, or vice versa. If there are other beads between the clicked bead and its destination, they will be moved and (in)activated as well.
   - Clicking and dragging a bead will "push" any beads that are "in the way."
@@ -44,16 +49,14 @@ Program for an interactable abacus
 
 #### future
 
-- [Here](https://trello.com/b/ed6DzdBR/aboncus) is a Trello board tracking past and future plans
+- [Here](https://trello.com/b/ed6DzdBR/aboncus) is a Trello board tracking components, including completed ones
 - Also included in this repository is "ORIGINAL README.md," which contains my initial thoughts and intentions from before I began the program
 - red light
   - None, we are functional!
 - yellow light
-  - Optional guide
-    - A toggleable switch to label heavenly beads as worth 5, earth beads as worth 1, and each column's place value
-- Tests for the LITE display updating correctly
-  - Due to what I believe was integer overflow, the LITE value wrapped around to negative numbers when a display value greater than $2^{31}$ was on the abacus. As such, I built the display value by considering each column as a single 1-digit integer, and concatenating the string versions of them together into the final LITE value. I would like to add testing for this, because it is currently only my visual confirmation that the behavior was correct
-  - Alternatively, it would also be nice to find a data type that can hold values above $2^{33}$, instead of doing the string construction runaround. An unsigned int is not enough, because that only allows the display to go up to $4.29$ billion, and not the $10$ billion $- 1$ that it should support
+  - Tests for the LITE display updating correctly
+    - Due to what I believe was integer overflow, the LITE value wrapped around to negative numbers when a display value greater than $2^{31}$ was on the abacus. As such, I built the display value by considering each column as a single 1-digit integer, and concatenating the string versions of them together into the final LITE value. I would like to add testing for this, because it is currently only my visual confirmation that the behavior was correct
+    - Alternatively, it would also be nice to find a data type that can hold values above $2^{33}$, instead of doing the string construction runaround. An unsigned int is not enough, because that only allows the display to go up to $4.29$ billion, and not the $10$ billion $- 1$ that it should support
 - green light
   - int vs float option
     - Would change the display from integer LITE values to decimals and back
@@ -65,7 +68,7 @@ Program for an interactable abacus
   - "Save" and "Return" options
     - Similar to "freeze," "save" would store the current state of the abacus and its LITE value. Moving beads would then resume as normal, with the LITE value updating accordingly. Clicking "return" would save the *new* current state and LITE, and switch the display back to the state and LITE that were saved
     - TK probably want `vector<vector<Bead>> mHistory`, and each vector is one instance of `mBeads`
-      - Or possible a map of 'vector<Bead>, LITE_as_string` so they can be kept together
+      - Or possibly a map of 'vector<Bead>, LITE_as_string` so they can be kept together
   - "History" option
     - An extension of the "save" and "return" options, this would ideally be a dropdown of (up to 10?) previously "save"d LITE values, with the most recent at the top. Behavior:
       - Select some "save"d LITE value

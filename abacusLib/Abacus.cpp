@@ -21,7 +21,7 @@ Abacus::Abacus()
 }
 
 /**
- * Sets up the initial beads and gets them into mBeads
+ * Sets up the initial beads, puts them into mEarthBeads and mHeavenlyBeads
  */
 void Abacus::SetUpBeads()
 {
@@ -136,7 +136,7 @@ void Abacus::DrawFrame(wxDC *dc)
  * Draws the integer value (LITE) display for the abacus
  * @param dc The device context to draw on
  */
-void Abacus::DrawLITEDisplay(wxDC *dc)
+void Abacus::DrawLITEDisplay(wxDC *dc) const
 {
     wxFont font(wxSize(10, 22),
                 wxFONTFAMILY_SWISS,
@@ -184,7 +184,6 @@ void Abacus::DrawLITEDisplay(wxDC *dc)
             displayValue += " ";
         }
     }
-
     dc->DrawText(displayValue, 250, 600);
 }
 
@@ -203,7 +202,7 @@ void Abacus::DrawResetButton(wxDC *dc) const
     {
         dc->DrawRectangle(mResetX, mResetY + mResetHeight / 2, mResetWidth, mResetHeight / 2);
     }
-        // draw the reset button released
+    // draw the reset button released
     else
     {
         dc->DrawRectangle(mResetX, mResetY, mResetWidth, mResetHeight);
@@ -211,9 +210,35 @@ void Abacus::DrawResetButton(wxDC *dc) const
 }
 
 /**
+ * Draw the guide
+ * @param dc The device context to draw on
+ */
+void Abacus::DrawGuide(wxDC *dc)
+{
+    wxFont font(wxSize(10, 22),
+                wxFONTFAMILY_SWISS,
+                wxFONTSTYLE_NORMAL,
+                wxFONTWEIGHT_NORMAL);
+    dc->SetFont(font);
+    dc->SetTextForeground(wxColour(70, 70, 70));
+    dc->DrawText(L"1", 1000, 520);
+    dc->DrawText(L"10", 892, 520);
+    dc->DrawText(L"100", 785, 520);
+    dc->DrawText(L"100,000", 465, 520);
+    dc->DrawText(L"100,000,000", 145, 520);
+
+    dc->DrawText(L"5", 1070, 120);
+    dc->DrawText(L"1", 1070, 235);
+    dc->DrawText(L"2", 1070, 285);
+    dc->DrawText(L"3", 1070, 335);
+    dc->DrawText(L"4", 1070, 385);
+}
+
+/**
  * Draw the abacus and its beads
  * calls DrawFrame for the frame and columns, which don't change
  * calls DrawLITEDisplay for the integer value display
+ * calls DrawGuide for the guide display
  * calls DrawResetButton for the reset button
  * calls Draw function for each bead in mEarthBeads and mHeavenlyBeads
  * @param dc The device context to draw on
@@ -222,10 +247,16 @@ void Abacus::OnDraw(wxDC *dc)
 {
     DrawFrame(dc);
 
-    if (mCheckBox->GetValue())
+    if (mLITECheckBox->GetValue())
     {
         DrawLITEDisplay(dc);
     }
+
+    if (mGuideCheckBox->GetValue())
+    {
+        DrawGuide(dc);
+    }
+
 
     DrawResetButton(dc);
 
@@ -248,25 +279,13 @@ void Abacus::OnDraw(wxDC *dc)
  */
 std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 {
-    // did we hit the reset button?
-    if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
+    if (NonBeadHitTest(x, y))
     {
-        mReset = true;
+        // we hit a button or checkbox, we can stop early!
         return nullptr;
     }
 
-    // did we hit the LITE display toggle?
-    int left, top, width, height;
-    mCheckBox->GetPosition(&left, &top);
-    mCheckBox->GetSize(&width, &height);
-    if (x >= left && x <= left + width && y >= top && y <= top + height)
-    {
-        // clicked the checkbox, flip its value and update whether to draw LITE display
-        mCheckBox->SetValue(!mCheckBox->GetValue());
-        return nullptr;
-    }
-
-    // finally, check if we hit a bead
+    // check if we hit a bead
     for (const auto& bead : mEarthBeads)
     {
         if (bead->HitTest(x, y))
@@ -283,6 +302,45 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
     }
 
     return nullptr;
+}
+
+/**
+ * For running a hit test on the non-bead components
+ * @param x X coordinate to test
+ * @param y Y coordinate to test
+ * @return true if we hit a non-bead, else false
+ */
+bool Abacus::NonBeadHitTest(int x, int y)
+{
+    // did we hit the reset button?
+    if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
+    {
+        mReset = true;
+        return true;
+    }
+
+    // did we hit the LITE display toggle?
+    int left, top, width, height;
+    mLITECheckBox->GetPosition(&left, &top);
+    mLITECheckBox->GetSize(&width, &height);
+    if (x >= left && x <= left + width && y >= top && y <= top + height)
+    {
+        // clicked the checkbox, flip its value and update whether to draw LITE display
+        mLITECheckBox->SetValue(!mLITECheckBox->GetValue());
+        return true;
+    }
+
+    // did we hit the guide display toggle?
+    mGuideCheckBox->GetPosition(&left, &top);
+    mGuideCheckBox->GetSize(&width, &height);
+    if (x >= left && x <= left + width && y >= top && y <= top + height)
+    {
+        // clicked the checkbox, flip its value and update whether to draw LITE display
+        mGuideCheckBox->SetValue(!mGuideCheckBox->GetValue());
+        return true;
+    }
+
+    return false;
 }
 
 /**

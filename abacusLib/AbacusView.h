@@ -35,7 +35,8 @@ private:
     /// the bead we are currently dragging
     std::shared_ptr<Bead> mGrabbedBead;
 
-    wxCheckBox mCheckBox;       ///< the check box for whether to draw the LITE display
+    wxCheckBox mLITECheckBox;       ///< the check box for whether to draw the LITE display
+    wxCheckBox mGuideCheckBox;      ///< the check box for whether to show the use guide
 
     void OnPaint(wxPaintEvent& event);
 

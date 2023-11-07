@@ -28,13 +28,19 @@ void AbacusView::Initialize(wxFrame *parent)
     Bind(wxEVT_LEFT_UP, &AbacusView::OnLeftUp, this);
     Bind(wxEVT_MOTION, &AbacusView::OnMouseMove, this);
 
-    wxPoint point(100, 650);
-    wxSize size(140, 30);
-    mCheckBox.Create(parent, wxID_ANY, L"Show integer display", point, size);
-    mCheckBox.SetValue(true);
+    wxPoint LITEpoint(100, 650);
+    wxSize LITEsize(140, 30);
+    mLITECheckBox.Create(parent, wxID_ANY, L"Show integer display", LITEpoint, LITEsize);
+    mLITECheckBox.SetValue(true);
 
-    // mCheckBox is a member in 2 places because it goes out of scope after this
-    mAbacus.AssignCheckBox(&mCheckBox);
+    wxPoint guidePoint(100, 685);
+    wxSize guideSize(140, 30);
+    mGuideCheckBox.Create(parent, wxID_ANY, L"Show guide", guidePoint, guideSize);
+    mGuideCheckBox.SetValue(true);
+
+    // the checkboxes are members in 2 places because they go out of scope after this
+    mAbacus.AssignLITECheckBox(&mLITECheckBox);
+    mAbacus.AssignGuideCheckBox(&mGuideCheckBox);
 }
 
 
@@ -51,7 +57,10 @@ void AbacusView::OnPaint(wxPaintEvent& event)
     dc.Clear();
 
     mAbacus.OnDraw(&dc);
-    mCheckBox.Refresh();    // redraw the checkbox each time, or it disappears
+
+    // redraw the checkboxes each time, or they disappear
+    mLITECheckBox.Refresh();
+    mGuideCheckBox.Refresh();
 }
 
 /**
@@ -65,7 +74,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
     if (mGrabbedBead == nullptr)
     {
-        Refresh();  // refresh in case the reset button or the checkbox was clicked
+        Refresh();  // refresh in case the reset button or a checkbox was clicked
     }
 
 }
