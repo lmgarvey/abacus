@@ -54,6 +54,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
     mClickedY = event.GetY();
     mPreviousMouseY = event.GetY();
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
+    Refresh();
 }
 
 /**
@@ -62,6 +63,14 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
+    // did we click the reset button?
+    if (mAbacus.GetReset())
+    {
+        mAbacus.ResetBeads();
+        mAbacus.ClearReset();
+        Refresh();
+    }
+
     int deltaY = abs(event.GetY() - mClickedY);
 
     // clicking and dragging

@@ -107,8 +107,7 @@ void Abacus::SetUpBeads()
 }
 
 /**
- * Draws the unchanging parts of the abacus:
- *      frame, column lines, the "integer" part of the LITE display
+ * Draws the frame and columns of the abacus (unchanging)
  * @param dc the device context to draw on
  */
 void Abacus::OnDrawFrame(wxDC *dc)
@@ -143,15 +142,11 @@ void Abacus::OnDrawFrame(wxDC *dc)
 }
 
 /**
- * Draw the abacus and its beads
- * calls OnDrawFrame for the frame and columns, which don't change
- * calls OnDraw function for each bead in mEarthBeads and mHeavenlyBeads
+ * Draws the integer value (LITE) display for the abacus
  * @param dc The device context to draw on
  */
-void Abacus::OnDraw(wxDC *dc)
+void Abacus::OnDrawLITEDisplay(wxDC *dc)
 {
-    OnDrawFrame(dc);
-
     // building the string backwards, from 1's place to 100..'s place
     std::string original;
     int column_total = 0;
@@ -192,6 +187,20 @@ void Abacus::OnDraw(wxDC *dc)
     }
 
     dc->DrawText(displayValue, 250, 600);
+}
+
+/**
+ * Draw the abacus and its beads
+ * calls OnDrawFrame for the frame and columns, which don't change
+ * calls OnDrawLITEDisplay for the integer value display
+ * calls OnDraw function for each bead in mEarthBeads and mHeavenlyBeads
+ * @param dc The device context to draw on
+ */
+void Abacus::OnDraw(wxDC *dc)
+{
+    OnDrawFrame(dc);
+
+    OnDrawLITEDisplay(dc);
 
     for (const auto& bead : mEarthBeads)
     {
@@ -202,16 +211,38 @@ void Abacus::OnDraw(wxDC *dc)
         bead->Draw(dc);
     }
 
+    wxBrush yellowBrush(*wxYELLOW_BRUSH);
+    dc->SetBrush(yellowBrush);
+    wxPen yellowPen(wxColour(245, 194, 66), 2);
+    dc->SetPen(yellowPen);
+    // draw the reset button clicked down
+    if (mReset)
+    {
+        dc->DrawRectangle(mResetX, mResetY + mResetHeight / 2, mResetWidth, mResetHeight / 2);
+    }
+    // draw the reset button released
+    else
+    {
+        dc->DrawRectangle(mResetX, mResetY, mResetWidth, mResetHeight);
+    }
+
 }
 
 /**
- * Test an x,y click location to see if we clicked a bead
+ * Test an x,y click location to see if we clicked a bead or RESET
  * @param x X location in pixels
  * @param y Y location in pixels
  * @return Pointer to bead we clicked, else nullptr
  */
 std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 {
+    // first check if we hit the reset button
+    if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
+    {
+        mReset = true;
+        return nullptr;
+    }
+
     for (const auto& bead : mEarthBeads)
     {
         if (bead->HitTest(x, y))
@@ -228,4 +259,21 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
     }
 
     return nullptr;
+}
+
+/**
+ * Reset all beads on the abacus to be inactivated
+ */
+void Abacus::ResetBeads()
+{
+    for (auto &bead: mEarthBeads)
+    {
+        bead->SetActivated(false);
+        bead->SetLocation(bead->GetX(), bead->GetFromBar());
+    }
+    for (auto &bead: mHeavenlyBeads)
+    {
+        bead->SetActivated(false);
+        bead->SetLocation(bead->GetX(), bead->GetFromBar());
+    }
 }
