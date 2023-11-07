@@ -26,6 +26,12 @@ Program for an interactable abacus
   - If beads are toward the horizontal "heavenly bar," they are considered activated. Each bead along the bottom section is called an "earth bead," and is worth 1 when moved *up* to the bar. Each bead along the top is a "heavenly bead," and is worth 5 when moved *down* to the bar.
   - When beads are moved appropriately, the LITE value display at the bottom will update to match them.
   - Red beads are marked to delineate 100's places.
+  - The yellow button on the top left can be clicked to reset the abacus.
+    - Doing so will reset all beads to inactivated, and reset the LITE value display to zeros.
+  - The checkbox below the LITE value display can be clicked to select whether the LITE value is shown.
+    - If checked, the LITE value display will appear as usual.
+    - If unchecked, there will be no LITE value display, but the checkbox will remain.
+    - The LITE value display persists when unseen. If the beads are moved when the LITE value display is hidden, and then the box is checked, the LITE value display will reappear with the correct number for the current state of the abacus.
 - Bead behavior
   - Clicking a bead once will flip it from inactivated to activated, or vice versa. If there are other beads between the clicked bead and its destination, they will be moved and (in)activated as well.
   - Clicking and dragging a bead will "push" any beads that are "in the way."
@@ -43,13 +49,9 @@ Program for an interactable abacus
 - yellow light
   - Optional guide
     - A toggleable switch to label heavenly beads as worth 5, earth beads as worth 1, and each column's place value
-  - Optional LITE display
-    - A toggleable switch to show or hide the LITE value display
-  - Reset button
-    - A button that, when clicked, sets the display and LITE value back to zero
-  - Tests for the LITE display updating correctly
-    - Due to what I believe was integer overflow, the LITE value wrapped around to negative numbers when a display value greater than $2^{31}$ was on the abacus. As such, I built the display value by considering each column as a single 1-digit integer, and concatenating the string versions of them together into the final LITE value. I would like to add testing for this, because it is currently only my visual confirmation that the behavior was correct
-    - Alternatively, it would also be nice to find a data type that can hold values above $2^{33}$, instead of doing the string construction runaround. An unsigned int is not enough, because that only allows the display to go up to $4.29$ billion, and not the $10$ billion $- 1$ that it should support
+- Tests for the LITE display updating correctly
+  - Due to what I believe was integer overflow, the LITE value wrapped around to negative numbers when a display value greater than $2^{31}$ was on the abacus. As such, I built the display value by considering each column as a single 1-digit integer, and concatenating the string versions of them together into the final LITE value. I would like to add testing for this, because it is currently only my visual confirmation that the behavior was correct
+  - Alternatively, it would also be nice to find a data type that can hold values above $2^{33}$, instead of doing the string construction runaround. An unsigned int is not enough, because that only allows the display to go up to $4.29$ billion, and not the $10$ billion $- 1$ that it should support
 - green light
   - int vs float option
     - Would change the display from integer LITE values to decimals and back

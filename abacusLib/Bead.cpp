@@ -5,7 +5,7 @@
  * Class for beads on the abacus
  *
  * created october 2023
- * updated october 2023
+ * updated november 2023
  */
 
 #include "pch.h"
@@ -36,7 +36,6 @@ Bead::~Bead()
  */
 void Bead::Draw(wxDC * dc)
 {
-    wxBrush beadBrush(*wxWHITE_BRUSH);
     if (mRedBead)
     {
         dc->SetBrush(*wxRED_BRUSH);
@@ -61,7 +60,12 @@ void Bead::Draw(wxDC * dc)
         // we're good!
         mY = GetY();
     }
+    wxPen blackPen(wxColour(0, 0, 0), 2);
+    dc->SetPen(blackPen);
     dc->DrawEllipse(mX, mY, GetWidth(), GetHeight());
+
+    // don't do dc->Clear(), we're still using the device context out in Abacus::OnDraw
+
 }
 
 /**

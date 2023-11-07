@@ -27,6 +27,14 @@ void AbacusView::Initialize(wxFrame *parent)
     Bind(wxEVT_LEFT_DOWN, &AbacusView::OnLeftDown, this);
     Bind(wxEVT_LEFT_UP, &AbacusView::OnLeftUp, this);
     Bind(wxEVT_MOTION, &AbacusView::OnMouseMove, this);
+
+    wxPoint point(100, 650);
+    wxSize size(140, 30);
+    mCheckBox.Create(parent, wxID_ANY, L"Show integer display", point, size);
+    mCheckBox.SetValue(true);
+
+    // mCheckBox is a member in 2 places because it goes out of scope after this
+    mAbacus.AssignCheckBox(&mCheckBox);
 }
 
 
@@ -43,6 +51,7 @@ void AbacusView::OnPaint(wxPaintEvent& event)
     dc.Clear();
 
     mAbacus.OnDraw(&dc);
+    mCheckBox.Refresh();    // redraw the checkbox each time, or it disappears
 }
 
 /**
@@ -54,6 +63,11 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
     mClickedY = event.GetY();
     mPreviousMouseY = event.GetY();
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
+    if (mGrabbedBead == nullptr)
+    {
+        Refresh();  // refresh in case the reset button or the checkbox was clicked
+    }
+
 }
 
 /**
@@ -62,12 +76,13 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
  */
 void AbacusView::OnLeftUp(wxMouseEvent &event)
 {
-    // did we click the reset button?
+    // were we clicking the reset button?
     if (mAbacus.GetReset())
     {
         mAbacus.ResetBeads();
         mAbacus.ClearReset();
         Refresh();
+        return;
     }
 
     int deltaY = abs(event.GetY() - mClickedY);

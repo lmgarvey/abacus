@@ -110,7 +110,7 @@ void Abacus::SetUpBeads()
  * Draws the frame and columns of the abacus (unchanging)
  * @param dc the device context to draw on
  */
-void Abacus::OnDrawFrame(wxDC *dc)
+void Abacus::DrawFrame(wxDC *dc)
 {
     // draw the frame
     wxPen brownPen(wxColour(125, 77, 32), 10);
@@ -130,8 +130,14 @@ void Abacus::OnDrawFrame(wxDC *dc)
     {
         dc->DrawLine(x, 100, x, 500);
     }
+}
 
-    // LITE display
+/**
+ * Draws the integer value (LITE) display for the abacus
+ * @param dc The device context to draw on
+ */
+void Abacus::DrawLITEDisplay(wxDC *dc)
+{
     wxFont font(wxSize(10, 22),
                 wxFONTFAMILY_SWISS,
                 wxFONTSTYLE_NORMAL,
@@ -139,14 +145,7 @@ void Abacus::OnDrawFrame(wxDC *dc)
     dc->SetFont(font);
     dc->SetTextForeground(wxColour(0, 0, 0));
     dc->DrawText(L"integer value: \t\t", 100, 600);
-}
 
-/**
- * Draws the integer value (LITE) display for the abacus
- * @param dc The device context to draw on
- */
-void Abacus::OnDrawLITEDisplay(wxDC *dc)
-{
     // building the string backwards, from 1's place to 100..'s place
     std::string original;
     int column_total = 0;
@@ -190,17 +189,45 @@ void Abacus::OnDrawLITEDisplay(wxDC *dc)
 }
 
 /**
+ * Draw the reset button
+ * @param dc The device context to draw on
+ */
+void Abacus::DrawResetButton(wxDC *dc) const
+{
+    wxBrush yellowBrush(*wxYELLOW_BRUSH);
+    dc->SetBrush(yellowBrush);
+    wxPen yellowPen(wxColour(245, 194, 66), 2);
+    dc->SetPen(yellowPen);
+    // draw the reset button clicked down
+    if (mReset)
+    {
+        dc->DrawRectangle(mResetX, mResetY + mResetHeight / 2, mResetWidth, mResetHeight / 2);
+    }
+        // draw the reset button released
+    else
+    {
+        dc->DrawRectangle(mResetX, mResetY, mResetWidth, mResetHeight);
+    }
+}
+
+/**
  * Draw the abacus and its beads
- * calls OnDrawFrame for the frame and columns, which don't change
- * calls OnDrawLITEDisplay for the integer value display
- * calls OnDraw function for each bead in mEarthBeads and mHeavenlyBeads
+ * calls DrawFrame for the frame and columns, which don't change
+ * calls DrawLITEDisplay for the integer value display
+ * calls DrawResetButton for the reset button
+ * calls Draw function for each bead in mEarthBeads and mHeavenlyBeads
  * @param dc The device context to draw on
  */
 void Abacus::OnDraw(wxDC *dc)
 {
-    OnDrawFrame(dc);
+    DrawFrame(dc);
 
-    OnDrawLITEDisplay(dc);
+    if (mCheckBox->GetValue())
+    {
+        DrawLITEDisplay(dc);
+    }
+
+    DrawResetButton(dc);
 
     for (const auto& bead : mEarthBeads)
     {
@@ -211,39 +238,35 @@ void Abacus::OnDraw(wxDC *dc)
         bead->Draw(dc);
     }
 
-    wxBrush yellowBrush(*wxYELLOW_BRUSH);
-    dc->SetBrush(yellowBrush);
-    wxPen yellowPen(wxColour(245, 194, 66), 2);
-    dc->SetPen(yellowPen);
-    // draw the reset button clicked down
-    if (mReset)
-    {
-        dc->DrawRectangle(mResetX, mResetY + mResetHeight / 2, mResetWidth, mResetHeight / 2);
-    }
-    // draw the reset button released
-    else
-    {
-        dc->DrawRectangle(mResetX, mResetY, mResetWidth, mResetHeight);
-    }
-
 }
 
 /**
- * Test an x,y click location to see if we clicked a bead or RESET
+ * Test an x,y click location to see if we clicked a bead or the reset button
  * @param x X location in pixels
  * @param y Y location in pixels
  * @return Pointer to bead we clicked, else nullptr
  */
 std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 {
-    // first check if we hit the reset button
+    // did we hit the reset button?
     if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
     {
         mReset = true;
-        Refresh();
         return nullptr;
     }
 
+    // did we hit the LITE display toggle?
+    int left, top, width, height;
+    mCheckBox->GetPosition(&left, &top);
+    mCheckBox->GetSize(&width, &height);
+    if (x >= left && x <= left + width && y >= top && y <= top + height)
+    {
+        // clicked the checkbox, flip its value and update whether to draw LITE display
+        mCheckBox->SetValue(!mCheckBox->GetValue());
+        return nullptr;
+    }
+
+    // finally, check if we hit a bead
     for (const auto& bead : mEarthBeads)
     {
         if (bead->HitTest(x, y))

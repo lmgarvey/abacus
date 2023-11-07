@@ -12,6 +12,7 @@
 #define ABACUS_ABACUS_H
 
 #include <utility>
+#include <wx/checkbox.h>
 
 #include "Bead.h"
 
@@ -32,18 +33,26 @@ private:
     int mResetWidth = 50;   ///< width of reset button
     int mResetHeight = 30;  ///< height of reset button when not clicked
 
+    wxCheckBox* mCheckBox;  ///< checkbox for whether to draw the LITE display
+
+
 public:
     Abacus();
 
     void OnDraw(wxDC *dc);
-    static void OnDrawFrame(wxDC *dc);
-    void OnDrawLITEDisplay(wxDC *dc);
+    static void DrawFrame(wxDC *dc);
+    void DrawLITEDisplay(wxDC *dc);
+    void DrawResetButton(wxDC *dc) const;
 
     std::shared_ptr<Bead> HitTest(int x, int y);
 
-    [[nodiscard]] bool GetReset() const { return mReset; }
-    void ClearReset() { mReset = false; }
+    // for the reset button
+    [[nodiscard]] bool GetReset() const { return mReset; }    ///< @return whether the reset button is clicked
+    void ClearReset() { mReset = false; }   ///< un-click the reset button
     void ResetBeads();
+
+    /// @param checkbox was constructed in the view, save it to the member variable
+    void AssignCheckBox(wxCheckBox *checkbox) { mCheckBox = checkbox; }
 
 };
 

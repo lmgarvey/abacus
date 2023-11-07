@@ -5,7 +5,7 @@
  * Class for beads on the abacus
  *
  * created october 2023
- * updated october 2023
+ * updated november 2023
  */
 
 #ifndef ABACUS_BEAD_H
@@ -106,21 +106,19 @@ public:
      * @param bead Bead we're telling it about
      */
     void AddTowardNeighbor(const std::shared_ptr<Bead>& bead) { mTowardBarNeighbors.push_back(bead); }
-    std::vector<std::shared_ptr<Bead>> GetTowardNeighbors() { return mTowardBarNeighbors; }     /// @return the neighbors between this bead and the bar
+    std::vector<std::shared_ptr<Bead>> GetTowardNeighbors() { return mTowardBarNeighbors; }     ///< @return the neighbors between this bead and the bar
 
     /**
      * Tell this bead about another bead below it, away from the bar
      * @param bead Bead we're telling it about
      */
     void AddFromNeighbor(const std::shared_ptr<Bead>& bead) { mFromBarNeighbors.push_back(bead); }
-    std::vector<std::shared_ptr<Bead>> GetFromNeighbors() { return mFromBarNeighbors; }     /// @return the neighbors between this bead and the bar
+    std::vector<std::shared_ptr<Bead>> GetFromNeighbors() { return mFromBarNeighbors; }     ///< @return the neighbors between this bead and the bar
 
     void Draw(wxDC *dc);
 
     [[nodiscard]] bool HitTest(int x, int y) const;
 
-
-    bool mWasAct = false;
 };
 
 

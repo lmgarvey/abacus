@@ -5,11 +5,13 @@
  * View class for the Abacus
  *
  * created october 2023
- * updated october 2023
+ * updated november 2023
  */
 
 #ifndef ABACUS_ABACUSVIEW_H
 #define ABACUS_ABACUSVIEW_H
+
+#include <wx/checkbox.h>
 
 #include "Abacus.h"
 
@@ -33,6 +35,8 @@ private:
     /// the bead we are currently dragging
     std::shared_ptr<Bead> mGrabbedBead;
 
+    wxCheckBox mCheckBox;       ///< the check box for whether to draw the LITE display
+
     void OnPaint(wxPaintEvent& event);
 
 public:
@@ -45,6 +49,7 @@ public:
     void HandleSingleClick(wxMouseEvent &event);
     void HandleDragging(wxMouseEvent &event);
     void HandleReleasing(wxMouseEvent &event);
+
 };
 
 
