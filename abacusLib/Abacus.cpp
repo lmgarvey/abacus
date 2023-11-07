@@ -240,6 +240,7 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
     if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
     {
         mReset = true;
+        Refresh();
         return nullptr;
     }
 

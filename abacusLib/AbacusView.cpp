@@ -54,7 +54,6 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
     mClickedY = event.GetY();
     mPreviousMouseY = event.GetY();
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
-    Refresh();
 }
 
 /**

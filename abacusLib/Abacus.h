@@ -25,8 +25,8 @@ private:
 
     void SetUpBeads();
 
+    // for the reset button
     bool mReset = false;    ///< whether the reset button was clicked
-
     int mResetX = 60;       ///< x-coord of top left corner of reset button
     int mResetY = 65;       ///< y-coord of top left corner of reset button
     int mResetWidth = 50;   ///< width of reset button
