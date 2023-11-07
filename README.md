@@ -1,6 +1,8 @@
 # abacus
 Program for an interactable abacus
 
+![Image of the abacus program. There are two brown horizontal bars forming the frame. There are ten columns, each with four beads on the bottom and one on top, running between the bars. Most of the beads are white. Three beads in the lower section are red, each with two white beads between them. A black bar separates the top from the bottom. The beads range in positions from against either of the brown bars to touching the black bar. There is a yellow rectangle at the top left. The words 'integer value' appear below the abacus, followed by a number corresponding to the positions of the beads. Below that is a checked box that reads 'Show integer display.' The background is light grey.](https://github.com/lmgarvey/abacus/assets/94126547/dc9ef2ee-e18d-486f-8949-bc70d2234832)
+
 #### vocab
 - TK
   - For finding later. Could mean something is broken, in progress, or I just know I'll want to come back to it.
