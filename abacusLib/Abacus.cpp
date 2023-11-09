@@ -146,35 +146,25 @@ void Abacus::DrawLITEDisplay(wxDC *dc) const
     dc->SetTextForeground(wxColour(0, 0, 0));
     dc->DrawText(L"integer value: \t\t", 100, 600);
 
-    // building the string backwards, from 1's place to 100..'s place
-    std::string original;
-    int column_total = 0;
-    int j = 0;
-    for (int i = 0; i < mEarthBeads.size(); i++)
+    int64_t total = 0;
+    for (const auto &bead : mEarthBeads)
     {
-        const auto bead = mEarthBeads.at(i);
         if (bead->GetActivated())
         {
-            column_total += bead->GetBaseValue();
-        }
-
-        // starting a new column
-        if ((i+1) % 4 == 0 && i != 0)
-        {
-            auto heavBead = mHeavenlyBeads.at(j);
-            if (heavBead->GetActivated())
-            {
-                column_total += heavBead->GetBaseValue();
-            }
-            original += std::to_string(column_total);
-            column_total = 0;
-            j++;
+            total += bead->GetBaseValue() * (int64_t)pow(10, bead->GetColPos());
         }
     }
-    std::reverse(original.begin(), original.end());
+    for (const auto &bead: mHeavenlyBeads)
+    {
+        if (bead->GetActivated())
+        {
+            total += bead->GetBaseValue() * (int64_t)pow(10, bead->GetColPos());
+        }
+    }
 
     // put in spacers, 100 000 000 is easier to look at than 100000000
     // ^^ spacer after i=2, i=5, up to pos 8
+    std::string original = std::to_string(total);
     std::string displayValue;
     for (int i = 0; i < original.size(); i++)
     {
@@ -184,6 +174,7 @@ void Abacus::DrawLITEDisplay(wxDC *dc) const
             displayValue += " ";
         }
     }
+
     dc->DrawText(displayValue, 250, 600);
 }
 

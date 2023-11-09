@@ -8,6 +8,12 @@ It will be in order of most recent first, as is standard in the regular commit h
 
 For all commits after 9 November, the main bullet will match the title on git's commit message.
 
+- Improved LITE value display
+  - 9 November 2023
+  - Modified the LITE value display calculation to use int64_t to build the entire number *as a number*, rather than as a backwards string one column at a time
+    - Updated the corresponding yellow light section in README.md
+    - I would still like to add testing for this, but we are functional!
+  - Cleaned up the functionality section of the README.md
 - Added GitCommitMessages file
   - 9 November 2023
   - Also updated the program image in README.md to include the optional guide display

@@ -24,27 +24,28 @@ Program for an interactable abacus
 
 #### current functionality
 
-- Display behavior
+- Abacus behavior
   - If beads are toward the horizontal "heavenly bar," they are considered activated. Each bead along the bottom section is called an "earth bead," and is worth 1 when moved *up* to the bar. Each bead along the top is a "heavenly bead," and is worth 5 when moved *down* to the bar.
   - When beads are moved appropriately, the LITE value display at the bottom will update to match them.
   - Red beads are marked to delineate 100's places.
   - The yellow button on the top left can be clicked to reset the abacus.
     - Doing so will reset all beads to inactivated, and reset the LITE value display to zeros.
-  - The checkbox below the LITE value display can be clicked to select whether the LITE value is shown.
-    - If checked, the LITE value display will appear as usual.
-    - If unchecked, there will be no LITE value display, but the checkbox will remain.
-    - The LITE value display persists when unseen. If the beads are moved when the LITE value display is hidden, and then the box is checked, the LITE value display will reappear with the correct number for the current state of the abacus.
-    - This box defaults to being checked.
-  - The checkbox beneath that can be clicked to select whether the optional guide is shown.
-    - If checked, numbers will appear along the right edge to demonstrate the positions for a 1, 2, 3, or 4x value. Numbers will appear along the bottom to denote the 1s, 10s, 100s, 100.000s, and 100.000.000s place.
-    - If unchecked, these numbers will disappear.
-    - This box defaults to being checked.
 - Bead behavior
   - Clicking a bead once will flip it from inactivated to activated, or vice versa. If there are other beads between the clicked bead and its destination, they will be moved and (in)activated as well.
   - Clicking and dragging a bead will "push" any beads that are "in the way."
     - Releasing a bead more than halfway along the column from where it began will snap it (and any pushed beads) to the opposite status.
     - Releasing a bead less than halfway along its column from where it began will snap it (and any pushed beads) back to where they started, with their status unchanged.
     - Changing direction mid-drag will "snap" the pushed beads away from the clicked bead, and they will no longer be considered "pushed."
+- Display behavior
+  - The checkbox below the LITE value display can be clicked to select whether the LITE value is shown.
+    - If checked, the LITE value display will appear as usual.
+    - If unchecked, there will be no LITE value display, but the checkbox will remain.
+    - The LITE value display persists when unseen. If the beads are moved when the LITE value display is hidden, and then the box is checked, the LITE value display will reappear with the correct number for the current state of the abacus.
+    - This box defaults to being checked.
+  - The checkbox beneath that can be clicked to select whether the optional guide is shown.
+    - If checked, numbers will appear along the right edge to demonstrate the positions for a 1, 2, 3, 4, or 5x value. Numbers will appear along the bottom to denote the 1s, 10s, 100s, 100.000s, and 100.000.000s place.
+    - If unchecked, these numbers will disappear.
+    - This box defaults to being checked.
 
 
 #### future
@@ -55,8 +56,7 @@ Program for an interactable abacus
   - None, we are functional!
 - yellow light
   - Tests for the LITE display updating correctly
-    - Due to what I believe was integer overflow, the LITE value wrapped around to negative numbers when a display value greater than $2^{31}$ was on the abacus. As such, I built the display value by considering each column as a single 1-digit integer, and concatenating the string versions of them together into the final LITE value. I would like to add testing for this, because it is currently only my visual confirmation that the behavior was correct
-    - Alternatively, it would also be nice to find a data type that can hold values above $2^{33}$, instead of doing the string construction runaround. An unsigned int is not enough, because that only allows the display to go up to $4.29$ billion, and not the $10$ billion $- 1$ that it should support
+    - The integer overflow has been corrected with the int64_t type! Now it displays correctly with numerical calculation, so it will actually be possible to write the tests
 - green light
   - int vs float option
     - Would change the display from integer LITE values to decimals and back
