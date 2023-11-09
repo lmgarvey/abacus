@@ -13,7 +13,6 @@ For all commits after 9 November, the main bullet will match the title on git's 
   - HitTest testing broke as a result of adding the checkboxes
     - Moved this testing into an AbacusMock class to account for it
   - Added testing for hitting the reset button
-  - Added testing for the LITE value display updating correctly
   - Bead testing was also broken as a result of removing the EarthBead and HeavenlyBead classes, removed those errors
 - Improved LITE value display
   - 9 November 2023
