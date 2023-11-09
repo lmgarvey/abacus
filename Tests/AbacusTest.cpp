@@ -17,6 +17,11 @@ using namespace std;
 class AbacusMock : public Abacus
 {
 public:
+    // getters
+    [[nodiscard]] std::string GetDisplayValue() const { return mDisplayValue; }
+    std::vector<std::shared_ptr<Bead>> GetEarthBeads() { return mEarthBeads; }
+    std::vector<std::shared_ptr<Bead>> GetHeavenlyBeads() { return mHeavenlyBeads; }
+
     /**
      * Mock hit test for beads, nearly identical to Abacus::HitTest
      *      Only skips seeing if we hit the checkboxes
@@ -42,6 +47,21 @@ public:
     {
         if (x >= 60 && x <= 60 + 50 && y >= 65 && y <= 65 + 30) { return true; }
         return false;
+    }
+
+    [[nodiscard]] int64_t CalculateTotal() const
+    {
+        int64_t out = 0;
+        for (const auto &bead : mEarthBeads)
+        {
+            if (bead->GetActivated())  { out += bead->GetBaseValue() * (int64_t)pow(10, bead->GetColPos()); }
+        }
+        for (const auto &bead: mHeavenlyBeads)
+        {
+            if (bead->GetActivated())  { out += bead->GetBaseValue() * (int64_t)pow(10, bead->GetColPos()); }
+        }
+
+        return out;
     }
 };
 
@@ -79,3 +99,114 @@ TEST(AbacusTest, HitTest)
         L"Testing clicking somewhere random on the screen when trying for the reset button";
 }
 
+TEST(AbacusTest, LITEValue)
+{
+    AbacusMock abacus;
+
+    // initial value should be zero
+    ASSERT_TRUE(abacus.GetDisplayValue() == "0") <<
+        L"Testing an initial display should be zero";
+
+
+    // move only earth beads
+    auto earthBeads = abacus.GetEarthBeads();
+    std::vector<int> toActivate = {2, 5, 12, 27, 1, 18, 38, 7};
+    for (const auto i : toActivate)
+    {
+        earthBeads.at(i)->SetActivated(true);
+        for (auto &neighbor : earthBeads.at(i)->GetTowardNeighbors())
+        {
+            // have to also activate their neighbors
+            neighbor->SetActivated(true);
+        }
+    }
+    int64_t total = 3004031043;     // calculated offline
+    ASSERT_EQ(abacus.CalculateTotal(), total) <<
+        L"Testing random earth beads only";
+
+
+    // resetting should put everything back to zero
+    abacus.ResetBeads();
+    ASSERT_EQ(abacus.CalculateTotal(), 0) <<
+        L"Resetting should put the total back to zero";
+
+
+    // move only heavenly beads
+    auto heavenlyBeads = abacus.GetHeavenlyBeads();
+    toActivate = {0, 7, 3, 9};
+    for (const auto i : toActivate)
+    {
+        heavenlyBeads.at(i)->SetActivated(true);
+    }
+    total = 5050005005;
+    ASSERT_EQ(abacus.CalculateTotal(), total) <<
+        L"Testing random heavenly beads only";
+
+
+    // resetting should put everything back to zero
+    abacus.ResetBeads();
+    ASSERT_EQ(abacus.CalculateTotal(), 0) <<
+        L"Resetting should put the total back to zero";
+
+
+    // move some earth beads AND heavenly beads
+    toActivate = {21, 18, 11, 0, 8, 33, 39, 27, 15, 30};
+    for (const auto i : toActivate)
+    {
+        earthBeads.at(i)->SetActivated(true);
+        for (auto &neighbor : earthBeads.at(i)->GetTowardNeighbors())
+        {
+            // have to also activate their neighbors
+            neighbor->SetActivated(true);
+        }
+    }
+    toActivate = {3, 1, 8, 5, 9};
+    for (const auto i : toActivate)
+    {
+        heavenlyBeads.at(i)->SetActivated(true);
+    }
+    total = 9734739451;
+    ASSERT_EQ(abacus.CalculateTotal(), total) <<
+        "Testing both earth and heaven beads";
+
+
+    // manually deactivate some beads without resetting the whole board
+    // including some already-deactivated beads
+    toActivate = {38, 13, 31, 24, 2, 36};
+    for (const auto i : toActivate)
+    {
+        earthBeads.at(i)->SetActivated(false);
+        for (auto &neighbor : earthBeads.at(i)->GetFromNeighbors())
+        {
+            neighbor->SetActivated(false);
+        }
+    }
+    toActivate = {1, 9, 8};
+    for (const auto i : toActivate)
+    {
+        heavenlyBeads.at(i)->SetActivated(false);
+    }
+    // activate some earth beads, just for fun
+    toActivate = {7, 14, 22, 15};
+    for (const auto i : toActivate)
+    {
+        earthBeads.at(i)->SetActivated(true);
+        for (auto &neighbor : earthBeads.at(i)->GetTowardNeighbors())
+        {
+            neighbor->SetActivated(true);
+        }
+    }
+    // and activate another heaven bead while we're at it
+    heavenlyBeads.at(6)->SetActivated(true);
+    heavenlyBeads.at(9)->SetActivated(true);
+    total = 5235839441;
+    ASSERT_EQ(abacus.CalculateTotal(), total) <<
+        "Testing earth and heaven beads without resetting first";
+
+
+    // resetting should put everything back to zero
+    abacus.ResetBeads();
+    ASSERT_EQ(abacus.CalculateTotal(), 0) <<
+        L"Resetting should put the total back to zero";
+
+}

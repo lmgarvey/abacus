@@ -55,8 +55,7 @@ Program for an interactable abacus
 - red light
   - None, we are functional!
 - yellow light
-  - Tests for the LITE display updating correctly
-    - The integer overflow has been corrected with the int64_t type! Now it displays correctly with numerical calculation, so it will actually be possible to write the tests
+  - None, we are functional!
 - green light
   - int vs float option
     - Would change the display from integer LITE values to decimals and back

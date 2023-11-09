@@ -8,6 +8,14 @@ It will be in order of most recent first, as is standard in the regular commit h
 
 For all commits after 9 November, the main bullet will match the title on git's commit message.
 
+
+- Added LITE value testing
+  - 9 November 2023
+  - Added testing for moving beads and updating the LITE display value correctly
+  - Again required use of the AbacusMock class for testing
+    - Took only the relevant value calculation from Abacus::OnDraw to avoid needing an instantiation of a View and drawing
+    - The actual logic of the calculation itself is unchanged in the mock class
+  - Modified the corresponding yellow light section in README.md
 - Updated Abacus testing
   - 9 November 2023
   - HitTest testing broke as a result of adding the checkboxes
