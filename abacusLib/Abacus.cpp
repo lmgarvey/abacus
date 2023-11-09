@@ -136,7 +136,7 @@ void Abacus::DrawFrame(wxDC *dc)
  * Draws the integer value (LITE) display for the abacus
  * @param dc The device context to draw on
  */
-void Abacus::DrawLITEDisplay(wxDC *dc) const
+void Abacus::DrawLITEDisplay(wxDC *dc)
 {
     wxFont font(wxSize(10, 22),
                 wxFONTFAMILY_SWISS,
@@ -165,17 +165,17 @@ void Abacus::DrawLITEDisplay(wxDC *dc) const
     // put in spacers, 100 000 000 is easier to look at than 100000000
     // ^^ spacer after i=2, i=5, up to pos 8
     std::string original = std::to_string(total);
-    std::string displayValue;
+    mDisplayValue = "";
     for (int i = 0; i < original.size(); i++)
     {
-        displayValue += original.at(i);
+        mDisplayValue += original.at(i);
         if ((original.size() - 1 - i) % 3 == 0)
         {
-            displayValue += " ";
+            mDisplayValue += " ";
         }
     }
 
-    dc->DrawText(displayValue, 250, 600);
+    dc->DrawText(mDisplayValue, 250, 600);
 }
 
 /**
@@ -247,7 +247,6 @@ void Abacus::OnDraw(wxDC *dc)
     {
         DrawGuide(dc);
     }
-
 
     DrawResetButton(dc);
 

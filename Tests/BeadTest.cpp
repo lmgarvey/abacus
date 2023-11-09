@@ -13,24 +13,16 @@
 #include <Bead.h>
 #include <Abacus.h>
 
-/// Mock class for testing the class bead
-class BeadMock : public Bead
-{
-public:
-    explicit BeadMock(Abacus *abacus) : Bead(abacus) {}
-
-};
-
 TEST(BeadTest, Construct)
 {
     Abacus abacus;
-    BeadMock bead(&abacus);
+    Bead bead(&abacus);
 }
 
 TEST(BeadTest, GettersSetters)
 {
     Abacus abacus;
-    BeadMock bead(&abacus);
+    Bead bead(&abacus);
 
     // initial values
     ASSERT_EQ(0, bead.GetX());
@@ -42,7 +34,7 @@ TEST(BeadTest, GettersSetters)
     ASSERT_EQ(682, bead.GetY());
 
     // new bead initial values
-    BeadMock bead2(&abacus);
+    Bead bead2(&abacus);
     ASSERT_EQ(0, bead2.GetX());
     ASSERT_EQ(0, bead2.GetY());
 
@@ -61,7 +53,7 @@ TEST(BeadTest, HitTest)
     // create a bead to test
     // earth and heavenly beads both use Bead::HitTest, just use an earthbead
     Abacus abacus;
-    EarthBead bead(&abacus);
+    Bead bead(&abacus);
 
     // give it a location (top left)
     bead.SetLocation(100, 275);

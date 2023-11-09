@@ -20,10 +20,13 @@
  * Our main aquarium class
  */
 class Abacus {
-private:
+protected:
     std::vector<std::shared_ptr<Bead>> mEarthBeads;       ///< earth beads
     std::vector<std::shared_ptr<Bead>> mHeavenlyBeads;    ///< heavenly beads
 
+    std::string mDisplayValue = "0";      ///< the LITE value to display below the abacus
+
+private:
     void SetUpBeads();
 
     // for the reset button
@@ -42,7 +45,7 @@ public:
 
     void OnDraw(wxDC *dc);
     static void DrawFrame(wxDC *dc);
-    void DrawLITEDisplay(wxDC *dc) const;
+    void DrawLITEDisplay(wxDC *dc);
     void DrawResetButton(wxDC *dc) const;
     static void DrawGuide(wxDC *dc);
 
