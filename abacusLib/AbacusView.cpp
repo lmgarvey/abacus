@@ -74,7 +74,7 @@ void AbacusView::OnLeftDown(wxMouseEvent &event)
     mGrabbedBead = mAbacus.HitTest(event.GetX(), event.GetY());
     if (mGrabbedBead == nullptr)
     {
-        Refresh();  // refresh in case the reset button or a checkbox was clicked
+        Refresh();  // refresh in case a button or checkbox was clicked
     }
 
 }
@@ -96,15 +96,23 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     // were we clicking the save button?
     if (mAbacus.GetSaving())
     {
-        mAbacus.SaveState();
+        mAbacus.SaveState(true);
         Refresh();
         return;
     }
 
-    // were we clicking the return button?
-    if (mAbacus.GetReturning())
+    // were we clicking the go back button?
+    if (mAbacus.GetGoingBack())
     {
-        mAbacus.ReturnToPrev();
+        mAbacus.GoToPrev();
+        Refresh();
+        return;
+    }
+
+    // were we clicking the go forth button?
+    if (mAbacus.GetGoingForth())
+    {
+        mAbacus.GoToNext();
         Refresh();
         return;
     }

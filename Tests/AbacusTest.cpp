@@ -45,7 +45,14 @@ public:
 
     static bool HitResetMock(int x, int y)
     {
-        if (x >= 60 && x <= 60 + 50 && y >= 65 && y <= 65 + 30) { return true; }
+        if (x >= 60 && x <= 60 + 50 && y >= 65 && y <= 65 + 30) { return true; }        // reset
+
+        if (x >= 300 && x <= 300 + 80 && y >= 650 && y <= 650 + 30) { return true; }    // save
+        if (x >= 300 && x <= 300 + 80 && y >= 685 && y <= 685 + 30) { return true; }    // freeze
+
+        if (x >= 400 && x <= 400 + 85 && y >= 650 && y <= 650 + 30) { return true; }    // go back
+        if (x >= 400 && x <= 400 + 85 && y >= 685 && y <= 685 + 30) { return true; }    // go forth
+
         return false;
     }
 
@@ -97,6 +104,55 @@ TEST(AbacusTest, HitTest)
         L"Testing clicking a bead when trying for the reset button";
     ASSERT_FALSE(abacus.HitResetMock(1023, 92)) <<
         L"Testing clicking somewhere random on the screen when trying for the reset button";
+
+    // check we can hit the save button
+    ASSERT_TRUE(abacus.HitResetMock(300 + 40, 650)) <<
+        L"Testing top middle of save button";
+    ASSERT_TRUE(abacus.HitResetMock(300, 650 + 30)) <<
+        L"Testing bottom left corner of save button";
+    ASSERT_TRUE(abacus.HitResetMock(300 + 17, 650 + 21)) <<
+        L"Testing somewhere in the middle of save button";
+    ASSERT_FALSE(abacus.HitResetMock(675 + 30, 400 + 25)) <<
+        L"Testing clicking a bead when trying for the save button";
+    ASSERT_FALSE(abacus.HitResetMock(1023, 92)) <<
+        L"Testing clicking somewhere random on the screen when trying for the save button";
+
+    // check we can hit the freeze button
+    ASSERT_TRUE(abacus.HitResetMock(300 + 40, 685)) <<
+        L"Testing top middle of freeze button";
+    ASSERT_TRUE(abacus.HitResetMock(300, 685 + 30)) <<
+        L"Testing bottom left corner of freeze button";
+    ASSERT_TRUE(abacus.HitResetMock(300 + 17, 685 + 21)) <<
+        L"Testing somewhere in the middle of freeze button";
+    ASSERT_FALSE(abacus.HitResetMock(675 + 30, 400 + 25)) <<
+        L"Testing clicking a bead when trying for the freeze button";
+    ASSERT_FALSE(abacus.HitResetMock(1023, 92)) <<
+        L"Testing clicking somewhere random on the screen when trying for the freeze button";
+
+    // check we can hit the go back button
+    ASSERT_TRUE(abacus.HitResetMock(400 + 42, 650)) <<
+        L"Testing top middle of go back button";
+    ASSERT_TRUE(abacus.HitResetMock(400, 650 + 30)) <<
+        L"Testing bottom left corner of go back button";
+    ASSERT_TRUE(abacus.HitResetMock(400 + 17, 650 + 21)) <<
+        L"Testing somewhere in the middle of go back button";
+    ASSERT_FALSE(abacus.HitResetMock(675 + 30, 400 + 25)) <<
+        L"Testing clicking a bead when trying for the go back button";
+    ASSERT_FALSE(abacus.HitResetMock(1023, 92)) <<
+        L"Testing clicking somewhere random on the screen when trying for the go back button";
+
+    // x >= 400 && x <= 400 + 85 && y >= 685 && y <= 685 + 30
+    // check we can hit the go forth button
+    ASSERT_TRUE(abacus.HitResetMock(400 + 42, 685)) <<
+        L"Testing top middle of go forth button";
+    ASSERT_TRUE(abacus.HitResetMock(400, 685 + 30)) <<
+        L"Testing bottom left corner of go forth button";
+    ASSERT_TRUE(abacus.HitResetMock(400 + 17, 685 + 21)) <<
+        L"Testing somewhere in the middle of go forth button";
+    ASSERT_FALSE(abacus.HitResetMock(675 + 30, 400 + 25)) <<
+        L"Testing clicking a bead when trying for the go forth button";
+    ASSERT_FALSE(abacus.HitResetMock(1023, 92)) <<
+        L"Testing clicking somewhere random on the screen when trying for the go forth button";
 }
 
 TEST(AbacusTest, LITEValue)

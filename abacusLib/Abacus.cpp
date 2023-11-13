@@ -106,7 +106,7 @@ void Abacus::SetUpBeads()
     }
 
     // default previous state is zeroes, initialize it here
-    SaveState();
+    SaveState(true);
 }
 
 
@@ -150,6 +150,12 @@ void Abacus::DrawLITEDisplay(wxDC *dc)
     dc->SetFont(font);
     dc->SetTextForeground(wxColour(0, 0, 0));
     dc->DrawText(L"integer value: \t\t", 100, 600);
+
+    if (mFreezing)
+    {
+        dc->DrawText(mDisplayValue, 250, 600);
+        return;
+    }
 
     int64_t total = 0;
     for (const auto &bead : mEarthBeads)
@@ -234,10 +240,10 @@ void Abacus::DrawGuide(wxDC *dc)
 
 
 /**
- * Draws the save and return buttons
+ * Draws the save, return, back, and forth buttons
  * @param dc The device context to draw on
  */
-void Abacus::DrawSaveReturn(wxDC *dc) const
+void Abacus::DrawGreenButtons(wxDC *dc) const
 {
     wxColour darkGreen = wxColour(130, 180, 130);
     wxColour lightGreen = wxColour(180, 230, 180);
@@ -251,21 +257,43 @@ void Abacus::DrawSaveReturn(wxDC *dc) const
     {
         dc->SetBrush(darkGreen);
     }
-    dc->DrawRoundedRectangle(300, 645, 70, 38, 5);  // save button
+    dc->DrawRoundedRectangle(300, 650, 80, 30, 5);  // save button
     dc->SetBrush(lightGreen);
 
-    if (mReturning)
+    if (mFreezing)
     {
         dc->SetBrush(darkGreen);
     }
-    dc->DrawRoundedRectangle(400, 645, 80, 38, 5);  // return button
+    dc->DrawRoundedRectangle(300, 685, 80, 30, 5);  // freeze button
     dc->SetBrush(lightGreen);
 
-    wxPen blackPen(*wxBLACK_PEN);
-    dc->SetPen(blackPen);
+    if (mGoBack)
+    {
+        dc->SetBrush(darkGreen);
+    }
+    dc->DrawRoundedRectangle(400, 650, 85, 30, 5);  // go back button
+    dc->SetBrush(lightGreen);
 
-    dc->DrawText(L"Save", 310, 650);
-    dc->DrawText(L"Return", 410, 650);
+    if (mGoForth)
+    {
+        dc->SetBrush(darkGreen);
+    }
+    dc->DrawRoundedRectangle(400, 685, 85, 30, 5);  // go back button
+    dc->SetBrush(lightGreen);
+
+
+    wxFont font(wxSize(8, 18),
+                wxFONTFAMILY_SWISS,
+                wxFONTSTYLE_NORMAL,
+                wxFONTWEIGHT_NORMAL);
+    dc->SetFont(font);
+    dc->SetTextForeground(wxColour(70, 70, 70));
+
+    dc->DrawText(L"Save", 318, 653);
+    dc->DrawText(L"Freeze", 312, 689);
+    dc->DrawText(L"Go Back", 407, 653);
+    dc->DrawText(L"Go Forth", 407, 689);
+
 }
 
 
@@ -295,7 +323,7 @@ void Abacus::OnDraw(wxDC *dc)
 
     DrawResetButton(dc);
 
-    DrawSaveReturn(dc);
+    DrawGreenButtons(dc);
 
     for (const auto& bead : mEarthBeads)
     {
@@ -379,16 +407,30 @@ bool Abacus::NonBeadHitTest(int x, int y)
     }
 
     // did we hit the save button?
-    if (x >= 300 && x <= 300 + 70 && y >= 645 && y <= 645 + 38)
+    if (x >= 300 && x <= 300 + 80 && y >= 650 && y <= 650 + 30)
     {
         mSaving = true;
         return true;
     }
 
-    // did we hit the reset button?
-    if (x >= 400 && x <= 400 + 80 && y >= 645 && y <= 645 + 38)
+    // did we hit the freeze button?
+    if (x >= 300 && x <= 300 + 80 && y >= 685 && y <= 685 + 30)
     {
-        mReturning = true;
+        mFreezing = !mFreezing;
+        return true;
+    }
+
+    // did we hit the go back button?
+    if (x >= 400 && x <= 400 + 85 && y >= 650 && y <= 650 + 30)
+    {
+        mGoBack = true;
+        return true;
+    }
+
+    // did we hit the go forth button?
+    if (x >= 400 && x <= 400 + 85 && y >= 685 && y <= 685 + 30)
+    {
+        mGoForth = true;
         return true;
     }
 
@@ -435,8 +477,9 @@ void Abacus::ResetBeads()
 
 /**
  * Save the current state of the abacus
+ * @param prev Whether we are saving into the prevBeads (true) or the nextBeads
  */
-void Abacus::SaveState()
+void Abacus::SaveState(bool prev)
 {
     std::vector<bool> earthBeadBools;
     std::vector<bool> heavenlyBeadBools;
@@ -456,7 +499,14 @@ void Abacus::SaveState()
             heavenlyBeadBools.push_back(false);
     }
 
-    mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    if (prev)
+    {
+        mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    }
+    else
+    {
+        mNextBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    }
     mSaving = false;
 }
 
@@ -464,13 +514,13 @@ void Abacus::SaveState()
 /**
  * Return back to the previously saved state of the abacus
  */
-void Abacus::ReturnToPrev()
+void Abacus::GoToPrev()
 {
     std::vector<bool> earthBeadBools = mPrevBeads.first;
     std::vector<bool> heavenlyBeadBools = mPrevBeads.second;
 
     // save Current State so we can go back and forth
-    SaveState();
+    SaveState(false);
 
     for (int i = 0; i < earthBeadBools.size(); i++)
     {
@@ -501,5 +551,49 @@ void Abacus::ReturnToPrev()
         }
     }
 
-    mReturning = false;
+    mGoBack = false;
+}
+
+
+/**
+ * Go forth to next saved state in abacus
+ */
+void Abacus::GoToNext()
+{
+    std::vector<bool> earthBeadBools = mNextBeads.first;
+    std::vector<bool> heavenlyBeadBools = mNextBeads.second;
+
+    // save Current State so we can go back and forth
+    SaveState(true);
+
+    for (int i = 0; i < earthBeadBools.size(); i++)
+    {
+        auto bead = mEarthBeads.at(i);
+        if (earthBeadBools.at(i))
+        {
+            bead->SetActivated(true);
+            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
+        }
+        else
+        {
+            bead->SetActivated(false);
+            bead->SetLocation(bead->GetX(), bead->GetFromBar());
+        }
+    }
+    for (int i = 0; i < heavenlyBeadBools.size(); i++)
+    {
+        auto bead = mHeavenlyBeads.at(i);
+        if (heavenlyBeadBools.at(i))
+        {
+            bead->SetActivated(true);
+            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
+        }
+        else
+        {
+            bead->SetActivated(false);
+            bead->SetLocation(bead->GetX(), bead->GetFromBar());
+        }
+    }
+
+    mGoForth = false;
 }

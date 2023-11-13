@@ -52,6 +52,12 @@ The background is light grey.](AbacusProgramImage.png)
     - If checked, numbers will appear along the right edge to demonstrate the positions for a 1, 2, 3, 4, or 5x value. Numbers will appear along the bottom to denote the 1s, 10s, 100s, 100.000s, and 100.000.000s place.
     - If unchecked, these numbers will disappear.
     - This box defaults to being checked.
+- Button behaviors
+  - The 'save' button saves the current state of the beads on the abacus
+  - The 'freeze' button stops the LITE display value from updating. The display is still visible, but does not change with the movement of beads. When clicked a second time, the LITE value display will update to match the current state of the abacus.
+  - The 'go back' button changes the abacus to match the most recently 'save'd previous state
+  - The 'go forth' button changes the abacus to match the most recent next state (the state that we left behind when clicking 'go back')
+
 
 
 #### future
@@ -68,8 +74,6 @@ The background is light grey.](AbacusProgramImage.png)
     - Functionality would be the same, but the manner of building the LITE display would differ slightly
     - green light<sup>2</sup>
       - Option to select where the decimal goes on the display
-  - "Freeze" option
-    - Would freeze the LITE value as it is. Moving any beads on the abacus would not change the LITE value. Once "freeze" is deselected, the LITE value would update to match the abacus as it is now, after any changes were made
   - "History" option
     - An extension of the "save" and "return" options, this would ideally be a dropdown of (up to 10?) previously "save"d LITE values, with the most recent at the top. Behavior:
       - Select some "save"d LITE value

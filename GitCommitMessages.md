@@ -9,6 +9,15 @@ It will be in order of most recent first, as is standard in the regular commit h
 For all commits after 9 November, the main bullet will match the title on git's commit message.
 
 
+- Added freeze and go forth buttons
+  - 13 November 2023
+  - Added freeze button and its hit tests
+  - Added 'go forth' button and its hit tests
+    - Currently only works in one direction (back once, forth once)
+  - Added hit tests for the save and return buttons
+    - Changed 'return' to 'go back' for consistency
+  - Added descriptions for the behaviors of these buttons in README.md
+  - Updated relevant green light section in README.md
 - Added save and return buttons
   - 12 November 2023
   - Added 'save' button that retains booleans of each bead's activation status

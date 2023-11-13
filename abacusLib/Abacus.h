@@ -41,8 +41,12 @@ private:
 
     // {booleans for all earth beads, booleans for all heavenly beads}
     std::pair<std::vector<bool>, std::vector<bool>> mPrevBeads;     ///< for saving the previous state of the abacus
+    std::pair<std::vector<bool>, std::vector<bool>> mNextBeads;     ///< for saving the next state of the abacus
+
     bool mSaving = false;        ///< whether the 'save' button is being clicked
-    bool mReturning = false;     ///< whether the 'return' button is being clicked
+    bool mFreezing = false;      ///< whether the 'freeze' button has been clicked
+    bool mGoBack = false;        ///< whether the 'go back' button is being clicked
+    bool mGoForth = false;       ///< whether the 'go forth' button is being clicked
 
 
 public:
@@ -53,24 +57,24 @@ public:
     void DrawLITEDisplay(wxDC *dc);
     void DrawResetButton(wxDC *dc) const;
     static void DrawGuide(wxDC *dc);
-    void DrawSaveReturn(wxDC *dc) const;
+    void DrawGreenButtons(wxDC *dc) const;
 
 
     std::shared_ptr<Bead> HitTest(int x, int y);
     bool NonBeadHitTest(int x, int y);
 
 
-    // for the reset button
     [[nodiscard]] bool GetReset() const { return mReset; }    ///< @return whether the reset button is clicked
     void ResetBeads();
 
-
     [[nodiscard]] bool GetSaving() const { return mSaving; }      ///< @return whether we are clicking the 'save' button
-    void SaveState();
+    void SaveState(bool prev);
 
-    [[nodiscard]] bool GetReturning() const { return mReturning; }  ///< @return whether we are clicking the 'return' button
-    void ReturnToPrev();
+    [[nodiscard]] bool GetGoingBack() const { return mGoBack; }  ///< @return whether we are clicking the 'go back' button
+    void GoToPrev();
 
+    [[nodiscard]] bool GetGoingForth() const { return mGoForth; }  ///< @return whether we are clicking the 'go forth' button
+    void GoToNext();
 
     /// @param checkbox was constructed in the view, save it to the member variable
     void AssignLITECheckBox(wxCheckBox *checkbox) { mLITECheckBox = checkbox; }
