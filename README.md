@@ -1,7 +1,13 @@
 # abacus
 Program for an interactable abacus
 
-![Image of the abacus program. There are two brown horizontal bars forming the frame. There are ten columns, each with four beads on the bottom and one on top, running between the bars. Most of the beads are white. Three beads in the lower section are red, each with two white beads between them. A black bar separates the top from the bottom. The beads range in positions from against either of the brown bars to touching the black bar. There is a yellow rectangle at the top left. The words 'integer value' appear below the abacus, followed by a number corresponding to the positions of the beads. Below that is a checked box that reads 'Show integer display.' Below that is a checkbox labeled 'Show guide,' which is checked. It is checked, and there are light grey numbers to the bottom and right denoting a bead's value from one to five, and a column's value in powers of ten.The background is light grey.](AbacusProgramImage.png)
+![Image of the abacus program. There are two brown horizontal bars forming the frame.
+There are ten columns, each with four beads on the bottom and one on top. Most of the beads are white. Three beads in the lower section are red.
+A black bar separates the top from the bottom. There is a yellow rectangle at the top left.
+The words 'integer value' appear below the abacus, followed by a number corresponding to the positions of the beads.
+Below that is a checked box labeled 'Show integer display.'
+Below that is a checked box labeled 'Show guide.' There are numbers along the edge of the frame indicating bead values.
+The background is light grey.](AbacusProgramImage.png)
 
 #### vocab
 - TK
@@ -64,10 +70,6 @@ Program for an interactable abacus
       - Option to select where the decimal goes on the display
   - "Freeze" option
     - Would freeze the LITE value as it is. Moving any beads on the abacus would not change the LITE value. Once "freeze" is deselected, the LITE value would update to match the abacus as it is now, after any changes were made
-  - "Save" and "Return" options
-    - Similar to "freeze," "save" would store the current state of the abacus and its LITE value. Moving beads would then resume as normal, with the LITE value updating accordingly. Clicking "return" would save the *new* current state and LITE, and switch the display back to the state and LITE that were saved
-    - TK probably want `vector<vector<Bead>> mHistory`, and each vector is one instance of `mBeads`
-      - Or possibly a map of 'vector<Bead>, LITE_as_string` so they can be kept together
   - "History" option
     - An extension of the "save" and "return" options, this would ideally be a dropdown of (up to 10?) previously "save"d LITE values, with the most recent at the top. Behavior:
       - Select some "save"d LITE value

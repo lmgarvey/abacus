@@ -104,7 +104,11 @@ void Abacus::SetUpBeads()
 
         mHeavenlyBeads.push_back(bead);
     }
+
+    // default previous state is zeroes, initialize it here
+    SaveState();
 }
+
 
 /**
  * Draws the frame and columns of the abacus (unchanging)
@@ -131,6 +135,7 @@ void Abacus::DrawFrame(wxDC *dc)
         dc->DrawLine(x, 100, x, 500);
     }
 }
+
 
 /**
  * Draws the integer value (LITE) display for the abacus
@@ -178,6 +183,7 @@ void Abacus::DrawLITEDisplay(wxDC *dc)
     dc->DrawText(mDisplayValue, 250, 600);
 }
 
+
 /**
  * Draw the reset button
  * @param dc The device context to draw on
@@ -199,6 +205,7 @@ void Abacus::DrawResetButton(wxDC *dc) const
         dc->DrawRectangle(mResetX, mResetY, mResetWidth, mResetHeight);
     }
 }
+
 
 /**
  * Draw the guide
@@ -225,12 +232,50 @@ void Abacus::DrawGuide(wxDC *dc)
     dc->DrawText(L"4", 1070, 385);
 }
 
+
+/**
+ * Draws the save and return buttons
+ * @param dc The device context to draw on
+ */
+void Abacus::DrawSaveReturn(wxDC *dc) const
+{
+    wxColour darkGreen = wxColour(130, 180, 130);
+    wxColour lightGreen = wxColour(180, 230, 180);
+
+    wxPen buttonPen(darkGreen, 2);
+    dc->SetPen(buttonPen);
+    wxBrush buttonBrush(lightGreen);
+    dc->SetBrush(buttonBrush);
+
+    if (mSaving)
+    {
+        dc->SetBrush(darkGreen);
+    }
+    dc->DrawRoundedRectangle(300, 645, 70, 38, 5);  // save button
+    dc->SetBrush(lightGreen);
+
+    if (mReturning)
+    {
+        dc->SetBrush(darkGreen);
+    }
+    dc->DrawRoundedRectangle(400, 645, 80, 38, 5);  // return button
+    dc->SetBrush(lightGreen);
+
+    wxPen blackPen(*wxBLACK_PEN);
+    dc->SetPen(blackPen);
+
+    dc->DrawText(L"Save", 310, 650);
+    dc->DrawText(L"Return", 410, 650);
+}
+
+
 /**
  * Draw the abacus and its beads
  * calls DrawFrame for the frame and columns, which don't change
  * calls DrawLITEDisplay for the integer value display
  * calls DrawGuide for the guide display
  * calls DrawResetButton for the reset button
+ * calls DrawSaveReturn for those two buttons
  * calls Draw function for each bead in mEarthBeads and mHeavenlyBeads
  * @param dc The device context to draw on
  */
@@ -250,6 +295,8 @@ void Abacus::OnDraw(wxDC *dc)
 
     DrawResetButton(dc);
 
+    DrawSaveReturn(dc);
+
     for (const auto& bead : mEarthBeads)
     {
         bead->Draw(dc);
@@ -258,8 +305,8 @@ void Abacus::OnDraw(wxDC *dc)
     {
         bead->Draw(dc);
     }
-
 }
+
 
 /**
  * Test an x,y click location to see if we clicked a bead or the reset button
@@ -293,6 +340,7 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 
     return nullptr;
 }
+
 
 /**
  * For running a hit test on the non-bead components
@@ -330,22 +378,128 @@ bool Abacus::NonBeadHitTest(int x, int y)
         return true;
     }
 
+    // did we hit the save button?
+    if (x >= 300 && x <= 300 + 70 && y >= 645 && y <= 645 + 38)
+    {
+        mSaving = true;
+        return true;
+    }
+
+    // did we hit the reset button?
+    if (x >= 400 && x <= 400 + 80 && y >= 645 && y <= 645 + 38)
+    {
+        mReturning = true;
+        return true;
+    }
+
     return false;
 }
 
+
 /**
  * Reset all beads on the abacus to be inactivated
+ * Also saves the state right before resetting to mPrevBeads
  */
 void Abacus::ResetBeads()
 {
+    std::vector<bool> earthBeadBools;
+    std::vector<bool> heavenlyBeadBools;
+
     for (auto &bead: mEarthBeads)
     {
+        // for mPrevBeads
+        if (bead->GetActivated())
+            earthBeadBools.push_back(true);
+        else
+            earthBeadBools.push_back(false);
+
         bead->SetActivated(false);
         bead->SetLocation(bead->GetX(), bead->GetFromBar());
     }
     for (auto &bead: mHeavenlyBeads)
     {
+        // for mPrevBeads
+        if (bead->GetActivated())
+            heavenlyBeadBools.push_back(true);
+        else
+            heavenlyBeadBools.push_back(false);
+
         bead->SetActivated(false);
         bead->SetLocation(bead->GetX(), bead->GetFromBar());
     }
+
+    mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    mReset = false;
+}
+
+
+/**
+ * Save the current state of the abacus
+ */
+void Abacus::SaveState()
+{
+    std::vector<bool> earthBeadBools;
+    std::vector<bool> heavenlyBeadBools;
+
+    for (const auto &bead : mEarthBeads)
+    {
+        if (bead->GetActivated())
+            earthBeadBools.push_back(true);
+        else
+            earthBeadBools.push_back(false);
+    }
+    for (const auto &bead : mHeavenlyBeads)
+    {
+        if (bead->GetActivated())
+            heavenlyBeadBools.push_back(true);
+        else
+            heavenlyBeadBools.push_back(false);
+    }
+
+    mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    mSaving = false;
+}
+
+
+/**
+ * Return back to the previously saved state of the abacus
+ */
+void Abacus::ReturnToPrev()
+{
+    std::vector<bool> earthBeadBools = mPrevBeads.first;
+    std::vector<bool> heavenlyBeadBools = mPrevBeads.second;
+
+    // save Current State so we can go back and forth
+    SaveState();
+
+    for (int i = 0; i < earthBeadBools.size(); i++)
+    {
+        auto bead = mEarthBeads.at(i);
+        if (earthBeadBools.at(i))
+        {
+            bead->SetActivated(true);
+            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
+        }
+        else
+        {
+            bead->SetActivated(false);
+            bead->SetLocation(bead->GetX(), bead->GetFromBar());
+        }
+    }
+    for (int i = 0; i < heavenlyBeadBools.size(); i++)
+    {
+        auto bead = mHeavenlyBeads.at(i);
+        if (heavenlyBeadBools.at(i))
+        {
+            bead->SetActivated(true);
+            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
+        }
+        else
+        {
+            bead->SetActivated(false);
+            bead->SetLocation(bead->GetX(), bead->GetFromBar());
+        }
+    }
+
+    mReturning = false;
 }

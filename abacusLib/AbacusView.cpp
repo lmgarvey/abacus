@@ -89,7 +89,22 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     if (mAbacus.GetReset())
     {
         mAbacus.ResetBeads();
-        mAbacus.ClearReset();
+        Refresh();
+        return;
+    }
+
+    // were we clicking the save button?
+    if (mAbacus.GetSaving())
+    {
+        mAbacus.SaveState();
+        Refresh();
+        return;
+    }
+
+    // were we clicking the return button?
+    if (mAbacus.GetReturning())
+    {
+        mAbacus.ReturnToPrev();
         Refresh();
         return;
     }

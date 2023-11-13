@@ -9,6 +9,14 @@ It will be in order of most recent first, as is standard in the regular commit h
 For all commits after 9 November, the main bullet will match the title on git's commit message.
 
 
+- Added save and return buttons
+  - 12 November 2023
+  - Added 'save' button that retains booleans of each bead's activation status
+  - Added 'return' button that allows you to go back and forth between current state and a previous 'saved' state
+  - Modified the corresponding yellow light section in README.md
+  - This also extends to a single click of the 'reset' button, where you can go back and forth between the reset state (zeroes) and some saved state
+    - The 'reset' button saves the current state before resetting, so an additional 'save' click is not necessary for this function to work
+  - Also tightened up the image description in the README.md
 - Added LITE value testing
   - 9 November 2023
   - Added testing for moving beads and updating the LITE display value correctly
