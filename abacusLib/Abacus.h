@@ -40,8 +40,8 @@ private:
     wxCheckBox* mGuideCheckBox; ///< checkbox for whether to draw the guide
 
     // {booleans for all earth beads, booleans for all heavenly beads}
-    std::pair<std::vector<bool>, std::vector<bool>> mPrevBeads;     ///< for saving the previous state of the abacus
-    std::pair<std::vector<bool>, std::vector<bool>> mNextBeads;     ///< for saving the next state of the abacus
+    std::vector<std::pair<std::vector<bool>, std::vector<bool>>> mPrevBeads;     ///< for saving the previous state of the abacus
+    std::vector<std::pair<std::vector<bool>, std::vector<bool>>> mNextBeads;     ///< for saving the next state of the abacus
 
     bool mSaving = false;        ///< whether the 'save' button is being clicked
     bool mFreezing = false;      ///< whether the 'freeze' button has been clicked
@@ -71,10 +71,10 @@ public:
     void SaveState(bool prev);
 
     [[nodiscard]] bool GetGoingBack() const { return mGoBack; }  ///< @return whether we are clicking the 'go back' button
-    void GoToPrev();
 
     [[nodiscard]] bool GetGoingForth() const { return mGoForth; }  ///< @return whether we are clicking the 'go forth' button
-    void GoToNext();
+
+    void GoToState(bool prev);
 
     /// @param checkbox was constructed in the view, save it to the member variable
     void AssignLITECheckBox(wxCheckBox *checkbox) { mLITECheckBox = checkbox; }

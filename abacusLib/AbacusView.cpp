@@ -104,7 +104,7 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     // were we clicking the go back button?
     if (mAbacus.GetGoingBack())
     {
-        mAbacus.GoToPrev();
+        mAbacus.GoToState(true);
         Refresh();
         return;
     }
@@ -112,7 +112,7 @@ void AbacusView::OnLeftUp(wxMouseEvent &event)
     // were we clicking the go forth button?
     if (mAbacus.GetGoingForth())
     {
-        mAbacus.GoToNext();
+        mAbacus.GoToState(false);
         Refresh();
         return;
     }

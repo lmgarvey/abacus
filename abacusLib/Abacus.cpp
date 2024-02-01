@@ -12,6 +12,8 @@
 
 #include "Abacus.h"
 
+using pairVecBoolVecBool = std::pair<std::vector<bool>, std::vector<bool>>;
+
 /**
  * Constructor
  */
@@ -278,8 +280,7 @@ void Abacus::DrawGreenButtons(wxDC *dc) const
     {
         dc->SetBrush(darkGreen);
     }
-    dc->DrawRoundedRectangle(400, 685, 85, 30, 5);  // go back button
-    dc->SetBrush(lightGreen);
+    dc->DrawRoundedRectangle(400, 685, 85, 30, 5);  // go forth button
 
 
     wxFont font(wxSize(8, 18),
@@ -371,6 +372,22 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 
 
 /**
+ * For checking whether a clicked spot hit within a certain region
+ * @param x X coord of click
+ * @param y Y coord of click
+ * @param left Left edge of region
+ * @param top Top edge of region
+ * @param width Width of region
+ * @param height Height of region
+ * @return true if we clicked within the region, else false
+ */
+bool hitCheck(int x, int y, int left, int top, int width, int height)
+{
+    return x >= left && x <= left + width && y >= top && y <= top + height;
+}
+
+
+/**
  * For running a hit test on the non-bead components
  * @param x X coordinate to test
  * @param y Y coordinate to test
@@ -379,7 +396,7 @@ std::shared_ptr<Bead> Abacus::HitTest(int x, int y)
 bool Abacus::NonBeadHitTest(int x, int y)
 {
     // did we hit the reset button?
-    if (x >= mResetX && x <= mResetX + mResetWidth && y >= mResetY && y <= mResetY + mResetHeight)
+    if (hitCheck(x, y, mResetX, mResetY, mResetWidth, mResetHeight))
     {
         mReset = true;
         return true;
@@ -389,7 +406,7 @@ bool Abacus::NonBeadHitTest(int x, int y)
     int left, top, width, height;
     mLITECheckBox->GetPosition(&left, &top);
     mLITECheckBox->GetSize(&width, &height);
-    if (x >= left && x <= left + width && y >= top && y <= top + height)
+    if (hitCheck(x, y, left, top, width, height))
     {
         // clicked the checkbox, flip its value and update whether to draw LITE display
         mLITECheckBox->SetValue(!mLITECheckBox->GetValue());
@@ -407,28 +424,37 @@ bool Abacus::NonBeadHitTest(int x, int y)
     }
 
     // did we hit the save button?
-    if (x >= 300 && x <= 300 + 80 && y >= 650 && y <= 650 + 30)
+    left = 300;
+    top = 650;
+    width = 80;
+    height = 30;
+    if (hitCheck(x, y, left, top, width, height))
     {
         mSaving = true;
         return true;
     }
 
     // did we hit the freeze button?
-    if (x >= 300 && x <= 300 + 80 && y >= 685 && y <= 685 + 30)
+    top = 685;
+    if (hitCheck(x, y, left, top, width, height))
     {
         mFreezing = !mFreezing;
         return true;
     }
 
     // did we hit the go back button?
-    if (x >= 400 && x <= 400 + 85 && y >= 650 && y <= 650 + 30)
+    left = 400;
+    top = 650;
+    width = 85;
+    if (hitCheck(x, y, left, top, width, height))
     {
         mGoBack = true;
         return true;
     }
 
     // did we hit the go forth button?
-    if (x >= 400 && x <= 400 + 85 && y >= 685 && y <= 685 + 30)
+    top = 685;
+    if (hitCheck(x, y, left, top, width, height))
     {
         mGoForth = true;
         return true;
@@ -440,37 +466,27 @@ bool Abacus::NonBeadHitTest(int x, int y)
 
 /**
  * Reset all beads on the abacus to be inactivated
- * Also saves the state right before resetting to mPrevBeads
+ * Also clears the saved mPrevBeads and mNextBeads
  */
 void Abacus::ResetBeads()
 {
-    std::vector<bool> earthBeadBools;
-    std::vector<bool> heavenlyBeadBools;
-
     for (auto &bead: mEarthBeads)
     {
-        // for mPrevBeads
-        if (bead->GetActivated())
-            earthBeadBools.push_back(true);
-        else
-            earthBeadBools.push_back(false);
-
         bead->SetActivated(false);
         bead->SetLocation(bead->GetX(), bead->GetFromBar());
     }
     for (auto &bead: mHeavenlyBeads)
     {
-        // for mPrevBeads
-        if (bead->GetActivated())
-            heavenlyBeadBools.push_back(true);
-        else
-            heavenlyBeadBools.push_back(false);
-
         bead->SetActivated(false);
         bead->SetLocation(bead->GetX(), bead->GetFromBar());
     }
 
-    mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+    mPrevBeads.clear();
+    mNextBeads.clear();
+
+    // re-initialize the previous saved state to zeros
+    SaveState(true);
+
     mReset = false;
 }
 
@@ -501,26 +517,61 @@ void Abacus::SaveState(bool prev)
 
     if (prev)
     {
-        mPrevBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+        // going forward, save this display behind us
+        mPrevBeads.emplace_back(earthBeadBools, heavenlyBeadBools);
     }
     else
     {
-        mNextBeads = std::make_pair(earthBeadBools, heavenlyBeadBools);
+        // going backward, save this display ahead of us
+        mNextBeads.emplace_back(earthBeadBools, heavenlyBeadBools);
     }
+
     mSaving = false;
 }
 
 
-/**
- * Return back to the previously saved state of the abacus
+/*
+ * Updates the abacus to the appropriate saved state, depending on which button was clicked
+ * @param prev: "Go Back" was clicked if true, "Go Forth" was clicked if false
  */
-void Abacus::GoToPrev()
+void Abacus::GoToState(bool prev)
 {
-    std::vector<bool> earthBeadBools = mPrevBeads.first;
-    std::vector<bool> heavenlyBeadBools = mPrevBeads.second;
+    std::vector<bool> earthBeadBools;
+    std::vector<bool> heavenlyBeadBools;
 
-    // save Current State so we can go back and forth
-    SaveState(false);
+    if (prev)
+    {
+        mGoBack = false;
+
+        if (mPrevBeads.empty())
+        {
+            // nothing to go back to
+            return;
+        }
+
+        earthBeadBools = mPrevBeads.back().first;
+        heavenlyBeadBools = mPrevBeads.back().second;
+        mPrevBeads.pop_back();
+
+        SaveState(false);
+
+    }
+    else
+    {
+        mGoForth = false;
+
+        if (mNextBeads.empty())
+        {
+            // nothing to go forth to
+            return;
+        }
+
+        earthBeadBools = mNextBeads.back().first;
+        heavenlyBeadBools = mNextBeads.back().second;
+        mNextBeads.pop_back();
+
+        SaveState(true);
+    }
 
     for (int i = 0; i < earthBeadBools.size(); i++)
     {
@@ -550,50 +601,4 @@ void Abacus::GoToPrev()
             bead->SetLocation(bead->GetX(), bead->GetFromBar());
         }
     }
-
-    mGoBack = false;
-}
-
-
-/**
- * Go forth to next saved state in abacus
- */
-void Abacus::GoToNext()
-{
-    std::vector<bool> earthBeadBools = mNextBeads.first;
-    std::vector<bool> heavenlyBeadBools = mNextBeads.second;
-
-    // save Current State so we can go back and forth
-    SaveState(true);
-
-    for (int i = 0; i < earthBeadBools.size(); i++)
-    {
-        auto bead = mEarthBeads.at(i);
-        if (earthBeadBools.at(i))
-        {
-            bead->SetActivated(true);
-            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
-        }
-        else
-        {
-            bead->SetActivated(false);
-            bead->SetLocation(bead->GetX(), bead->GetFromBar());
-        }
-    }
-    for (int i = 0; i < heavenlyBeadBools.size(); i++)
-    {
-        auto bead = mHeavenlyBeads.at(i);
-        if (heavenlyBeadBools.at(i))
-        {
-            bead->SetActivated(true);
-            bead->SetLocation(bead->GetX(), bead->GetTowardBar());
-        }
-        else
-        {
-            bead->SetActivated(false);
-            bead->SetLocation(bead->GetX(), bead->GetFromBar());
-        }
-    }
-
-    mGoForth = false;
 }
