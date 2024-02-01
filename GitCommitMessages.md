@@ -1,6 +1,6 @@
 # Git Commit Messages
 
-Since I work locally in CLion, committing and pushing changes with messages can only be done with titles, and no description section.
+Since I work locally in CLion and Visual Studio, committing and pushing changes with messages can only be done with titles, and no description section.
 This is visually messy to me when looking at my commit history, since it's difficult to see at a glance what a certain commit did - you have to expand the title just to see the full thing.
 
 This document is intended to supplement those messages. It will include backdated commits from before its existence, and will list out future commits as well, in an effort to clarify changes as they happened.
@@ -9,6 +9,18 @@ It will be in order of most recent first, as is standard in the regular commit h
 For all commits after 9 November, the main bullet will match the title on git's commit message.
 
 
+- [TK what did you do?]
+  - [TK when did you do it?]
+  - Cleaned up the NonBeadHitTest function
+
+- Cleaned up the back and forth buttons
+  - 31 January 2024 (happy new year!)
+  - Improved switching between previous and future saved states
+    - Condensed the work for changing between saved states into a single function
+    - Can now go back through multiple saved states, make modifications, and go forth to the "forward saved" states, with the modifications persisting as the most recent "previous saved" state
+    - Clicking the 'reset' button now clears the "prev" and "next" saved states, as if starting the app from scratch
+  - Modified CMakeLists.txt to account for an outdated version of CMake
+    - This is more of a band-aid than a solution, to get it working on my machine
 - Added freeze and go forth buttons
   - 13 November 2023
   - Added freeze button and its hit tests
