@@ -1,5 +1,5 @@
 # abacus
-Program for an interactable abacus
+Program for an interactable abacus - Now playable!! Download the `abacus.exe` file to give it a test drive (you might get a warning from Windows - if you click 'More info' you should be able to run it)
 
 ![Image of the abacus program. There are two brown horizontal bars forming the frame.
 There are ten columns, each with four beads on the bottom and one on top. Most of the beads are white. Three beads in the lower section are red.
